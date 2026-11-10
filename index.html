@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ahmad Mofidur Robbiyal Aqla | Full Stack Developer & Game Dev</title>
+    <meta
+      name="description"
+      content="Ahmad Mofidur Robbiyal Aqla (Requime) — Full Stack Developer, Prompt Engineer & Game Developer from Sumenep, Indonesia."
+    />
+    <meta
+      name="keywords"
+      content="Full Stack Developer, React, Node.js, Laravel, Game Development, Unity, AI, Prompt Engineering, Portfolio, Sumenep"
+    />
+    <meta name="author" content="Ahmad Mofidur Robbiyal Aqla" />
+    <meta name="theme-color" content="#0a192f" />
+    <meta name="color-scheme" content="dark light" />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/images/alif.jpg" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- Open Graph / social previews -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Ahmad Mofidur Robbiyal Aqla | Full Stack Developer" />
+    <meta
+      property="og:description"
+      content="Full Stack Developer specializing in React, Node.js, Game Development & AI Integration."
+    />
+    <meta property="og:image" content="/images/alif.jpg" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Ahmad Mofidur Robbiyal Aqla | Full Stack Developer" />
+    <meta
+      name="twitter:description"
+      content="Full Stack Developer specializing in React, Node.js, Game Development & AI Integration."
+    />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Apply the saved (or system) theme before first paint to avoid a flash of the wrong theme. -->
+    <script>
+      (function () {
+        var theme = null;
+        try {
+          theme = localStorage.getItem('theme');
+        } catch (e) {}
+        // Dark is the default look; a saved choice from the theme toggle wins.
+        var dark = theme ? theme === 'dark' : true;
+        var root = document.documentElement;
+        root.classList.toggle('dark', dark);
+        root.style.colorScheme = dark ? 'dark' : 'light';
+      })();
+    </script>
+  </head>
+  <body>
+    <noscript>
+      <p style="padding: 2rem; font-family: sans-serif; text-align: center">
+        Please enable JavaScript to view this portfolio.
+      </p>
+    </noscript>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,80 @@
+/* Volume slider: the filled part follows --value (set inline by the music player). */
+.slider {
+  background: linear-gradient(to right, #00d1ff 0%, #bd00ff var(--value, 50%), #d1d5db var(--value, 50%));
+  outline: none;
+  cursor: pointer;
+}
+
+.dark .slider {
+  background: linear-gradient(to right, #00d1ff 0%, #bd00ff var(--value, 50%), #374151 var(--value, 50%));
+}
+
+.slider::-webkit-slider-thumb {
+  appearance: none;
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid #00d1ff;
+  box-shadow: 0 0 10px rgba(0, 209, 255, 0.3);
+}
+
+.slider::-moz-range-thumb {
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid #00d1ff;
+  box-shadow: 0 0 10px rgba(0, 209, 255, 0.3);
+}
+
+/* Thin scrollbars for inner scroll areas (chat, console). */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 209, 255, 0.35) transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 209, 255, 0.35);
+  border-radius: 20px;
+}
+
+/* Custom cursor: the native cursor is hidden only when the custom one is active
+   (mouse devices). Text fields keep the I-beam so typing still feels natural. */
+html.custom-cursor,
+html.custom-cursor * {
+  cursor: none !important;
+}
+
+html.custom-cursor input:not([type='range']):not([type='checkbox']):not([type='radio']),
+html.custom-cursor textarea,
+html.custom-cursor [contenteditable='true'] {
+  cursor: text !important;
+}
+
+/* Konami code easter egg (applied to content only: a filter on <body> would break fixed elements) */
+html.party-mode main,
+html.party-mode footer {
+  animation: party-hue 1.5s linear infinite;
+}
+
+@keyframes party-hue {
+  from {
+    filter: hue-rotate(0deg);
+  }
+  to {
+    filter: hue-rotate(360deg);
+  }
+}
+
+::selection {
+  background-color: rgba(0, 209, 255, 0.3);
+}
