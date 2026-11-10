@@ -1,6 +1,18 @@
 import type { LucideIcon } from 'lucide-react';
 import { Github, Instagram, Mail, MessageCircle } from 'lucide-react';
 
+const BIRTH_DATE = '2006-10-29';
+
+/** Age in whole years, computed from the birth date so it never goes stale. */
+function ageFrom(isoDate: string, today = new Date()) {
+  const birth = new Date(`${isoDate}T00:00:00`);
+  let age = today.getFullYear() - birth.getFullYear();
+  const beforeBirthday =
+    today.getMonth() < birth.getMonth() || (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate());
+  if (beforeBirthday) age--;
+  return age;
+}
+
 /**
  * Single source of truth for personal info used across the site.
  * Leave a social `href` empty to hide that link everywhere.
@@ -14,18 +26,20 @@ export const profile = {
   bio:
     'A passionate Full Stack Developer with expertise in modern web technologies, game development, ' +
     'and AI integration. I love creating digital experiences that solve real-world problems and bring ideas to life.',
-  age: '22 Years Old',
+  birthDate: BIRTH_DATE,
+  age: `${ageFrom(BIRTH_DATE)} Years Old`,
   location: 'Sumenep, Indonesia',
   interest: 'Coding & Analysis',
   experience: '3+ Years Experience',
   avatar: '/images/alif.jpg',
-  email: 'owner@requime.com',
-  phone: '+62 877 2985 0738',
-  phoneHref: 'tel:+6287729850738',
-  whatsapp: 'https://wa.me/6287729850738',
-  mapsUrl: 'https://maps.app.goo.gl/sS3xdvwiDfAHwRoG6',
-  mapsEmbed: 'https://www.google.com/maps?q=Sumenep,+Jawa+Timur,+Indonesia&z=12&output=embed',
+  email: 'robbiansah363@gmail.com',
+  phone: '+62 812-5251-7329',
+  phoneHref: 'tel:+6281252517329',
+  whatsapp: 'https://wa.me/6281252517329',
+  mapsUrl: 'https://maps.app.goo.gl/BUKFJa5YMDehFiqw8?g_st=ic',
+  mapsEmbed: 'https://www.google.com/maps?q=-7.0786129,114.0393211&z=14&output=embed',
   github: 'https://github.com/RequimeOfficial',
+  website: 'https://requime.my.id',
   cvUrl: '/cv/Ahmad-Mofidur-Robbiyal-Aqla-CV.pdf',
   available: true,
 };
