@@ -59,6 +59,19 @@
         var root = document.documentElement;
         root.classList.toggle('dark', dark);
         root.style.colorScheme = dark ? 'dark' : 'light';
+
+        // Same for the language: set lang/dir early so right-to-left pages don't flip after loading.
+        var langs = ['en', 'id', 'ja', 'ar'];
+        var lang = null;
+        try {
+          lang = new URLSearchParams(location.search).get('lang') || localStorage.getItem('lang');
+        } catch (e) {}
+        if (langs.indexOf(lang) === -1) {
+          lang = (navigator.language || 'en').toLowerCase().split('-')[0];
+          if (langs.indexOf(lang) === -1) lang = 'en';
+        }
+        root.lang = lang;
+        root.dir = lang === 'ar' ? 'rtl' : 'ltr';
       })();
     </script>
   </head>

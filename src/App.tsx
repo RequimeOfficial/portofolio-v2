@@ -18,6 +18,8 @@ import ScrollToTop from './components/ScrollToTop';
 import EasterEggConsole from './components/EasterEggConsole';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { MusicProvider } from './contexts/MusicContext';
+import { LanguageProvider } from './contexts/LanguageContext';
+import { useI18n } from './contexts/language';
 import { useEasterEgg } from './hooks/useEasterEgg';
 
 /** The intro loader is shown once per browser session, and only briefly. */
@@ -33,6 +35,7 @@ const shouldShowLoader = () => {
 
 function AppContent() {
   const [isLoading, setIsLoading] = useState(shouldShowLoader);
+  const { t } = useI18n();
   const { showConsole, commands, executeCommand, closeConsole, openConsole } = useEasterEgg();
 
   useEffect(() => {
@@ -46,9 +49,9 @@ function AppContent() {
     <div className="min-h-screen overflow-x-clip bg-white dark:bg-dark-primary transition-colors duration-300">
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-lg focus:bg-neon-blue focus:text-white"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:start-4 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-lg focus:bg-neon-blue focus:text-white"
       >
-        Skip to content
+        {t.common.skipToContent}
       </a>
       <CustomCursor />
       <ParticleBackground />
@@ -96,11 +99,13 @@ function App() {
   return (
     // Respects the OS "reduce motion" setting for all Framer Motion animations.
     <MotionConfig reducedMotion="user">
-      <ThemeProvider>
-        <MusicProvider>
-          <AppContent />
-        </MusicProvider>
-      </ThemeProvider>
+      <LanguageProvider>
+        <ThemeProvider>
+          <MusicProvider>
+            <AppContent />
+          </MusicProvider>
+        </ThemeProvider>
+      </LanguageProvider>
     </MotionConfig>
   );
 }

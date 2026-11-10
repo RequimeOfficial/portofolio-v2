@@ -4,7 +4,9 @@ import { Calendar, Clock, Tag, Heart, Share2, Search, ArrowRight, Check, X, Mail
 import SectionHeader from '../ui/SectionHeader';
 import SmartImage from '../ui/SmartImage';
 import Modal from '../ui/Modal';
-import { blogCategories, blogPosts, type BlogPost, type ContentBlock } from '../../data/posts';
+import { blogCategories, blogPosts, type BlogPost } from '../../data/posts';
+import type { ContentBlock } from '../../i18n/posts/types';
+import { useI18n } from '../../contexts/language';
 import { profile } from '../../data/profile';
 import { copyText, formatDate, storage } from '../../lib/utils';
 import { EMAIL_PATTERN, sendMessage } from '../../lib/contact';
@@ -24,7 +26,7 @@ const ArticleBody: React.FC<{ blocks: ContentBlock[] }> = ({ blocks }) => (
           );
         case 'ul':
           return (
-            <ul key={i} className="list-disc pl-6 space-y-1.5 marker:text-neon-blue">
+            <ul key={i} className="list-disc ps-6 space-y-1.5 marker:text-neon-blue">
               {block.items.map((item) => (
                 <li key={item}>{item}</li>
               ))}
@@ -34,7 +36,8 @@ const ArticleBody: React.FC<{ blocks: ContentBlock[] }> = ({ blocks }) => (
           return (
             <pre
               key={i}
-              className="bg-dark-primary text-gray-100 text-sm rounded-xl p-4 overflow-x-auto border border-white/10"
+              dir="ltr"
+              className="bg-dark-primary text-gray-100 text-sm rounded-xl p-4 overflow-x-auto border border-white/10 text-left"
             >
               <code data-lang={block.lang}>{block.code}</code>
             </pre>
@@ -47,6 +50,7 @@ const ArticleBody: React.FC<{ blocks: ContentBlock[] }> = ({ blocks }) => (
 );
 
 const Blog: React.FC = () => {
+  const { t, posts, info } = useI18n();
   const [activeCategory, setActiveCategory] = useState<(typeof blogCategories)[number]>('All');
   const [searchTerm, setSearchTerm] = useState('');
   const [liked, setLiked] = useState<number[]>(() => storage.getJSON<number[]>(LIKES_KEY, []));
@@ -61,12 +65,12 @@ const Blog: React.FC = () => {
       const matchesCategory = activeCategory === 'All' || post.category === activeCategory;
       const matchesSearch =
         !q ||
-        post.title.toLowerCase().includes(q) ||
-        post.excerpt.toLowerCase().includes(q) ||
+        posts[post.slug].title.toLowerCase().includes(q) ||
+        posts[post.slug].excerpt.toLowerCase().includes(q) ||
         post.tags.some((tag) => tag.toLowerCase().includes(q));
       return matchesCategory && matchesSearch;
     });
-  }, [activeCategory, searchTerm]);
+  }, [activeCategory, searchTerm, posts]);
 
   const featuredPosts = filteredPosts.filter((p) => p.featured);
   const otherPosts = filteredPosts.filter((p) => !p.featured);
@@ -117,13 +121,13 @@ const Blog: React.FC = () => {
     const url = `${window.location.origin}${window.location.pathname}${ARTICLE_HASH}${post.slug}`;
     if (navigator.share) {
       try {
-        await navigator.share({ title: post.title, text: post.excerpt, url });
+        await navigator.share({ title: posts[post.slug].title, text: posts[post.slug].excerpt, url });
         return;
       } catch (err) {
         if ((err as DOMException)?.name === 'AbortError') return;
       }
     }
-    setToast((await copyText(url)) ? 'Link copied to clipboard!' : 'Could not copy the link');
+    setToast((await copyText(url)) ? t.blog.copied : t.blog.copyFailed);
   };
 
   const handleSubscribe = async (e: React.FormEvent) => {
@@ -161,7 +165,7 @@ const Blog: React.FC = () => {
         }`}
         whileTap={{ scale: 0.8 }}
         aria-pressed={isLiked}
-        aria-label={isLiked ? 'Unlike article' : 'Like article'}
+        aria-label={isLiked ? t.blog.unlike : t.blog.like}
       >
         <Heart size={size} fill={isLiked ? 'currentColor' : 'none'} />
         {post.likes + (isLiked ? 1 : 0)}
@@ -179,7 +183,7 @@ const Blog: React.FC = () => {
       className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-neon-blue transition-colors duration-200"
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.9 }}
-      aria-label={`Share "${post.title}"`}
+      aria-label={t.blog.share(posts[post.slug].title)}
     >
       <Share2 size={size} />
     </motion.button>
@@ -199,7 +203,7 @@ const Blog: React.FC = () => {
         type="button"
         onClick={() => openArticle(post)}
         className={`relative ${featured ? 'h-48' : 'h-40'} overflow-hidden block w-full`}
-        aria-label={`Read "${post.title}"`}
+        aria-label={t.blog.read(posts[post.slug].title)}
         tabIndex={-1}
       >
         <SmartImage
@@ -208,35 +212,35 @@ const Blog: React.FC = () => {
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
         />
         {featured && (
-          <span className="absolute top-4 left-4 px-3 py-1 bg-gradient-to-r from-neon-blue to-neon-purple text-white text-xs font-bold rounded-full">
-            FEATURED
+          <span className="absolute top-4 start-4 px-3 py-1 bg-gradient-to-r from-neon-blue to-neon-purple text-white text-xs font-bold rounded-full">
+            {t.common.featured}
           </span>
         )}
-        <span className="absolute top-4 right-4 px-3 py-1 bg-black/60 text-white text-xs rounded-full">
-          {post.category}
+        <span className="absolute top-4 end-4 px-3 py-1 bg-black/60 text-white text-xs rounded-full">
+          {t.blog.categories[post.category]}
         </span>
       </button>
 
       <div className="p-6 flex flex-col flex-1">
         <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 mb-3">
-          <Calendar size={13} className="mr-1" aria-hidden="true" />
-          <time dateTime={post.date} className="mr-4">
-            {formatDate(post.date)}
+          <Calendar size={13} className="me-1" aria-hidden="true" />
+          <time dateTime={post.date} className="me-4">
+            {formatDate(post.date, info.locale)}
           </time>
-          <Clock size={13} className="mr-1" aria-hidden="true" />
-          <span>{post.readTime}</span>
+          <Clock size={13} className="me-1" aria-hidden="true" />
+          <span>{t.blog.readTime(post.minutes)}</span>
         </div>
 
         <h3
           className={`${featured ? 'text-xl' : 'text-lg line-clamp-2'} font-bold text-gray-900 dark:text-white mb-3 group-hover:text-neon-blue transition-colors duration-300`}
         >
-          <button type="button" onClick={() => openArticle(post)} className="text-left">
-            {post.title}
+          <button type="button" onClick={() => openArticle(post)} className="text-start">
+            {posts[post.slug].title}
           </button>
         </h3>
 
         <p className={`text-gray-600 dark:text-gray-300 mb-4 ${featured ? '' : 'text-sm line-clamp-3'}`}>
-          {post.excerpt}
+          {posts[post.slug].excerpt}
         </p>
 
         {featured && (
@@ -247,9 +251,9 @@ const Blog: React.FC = () => {
                 type="button"
                 onClick={() => setSearchTerm(tag)}
                 className="px-2 py-1 bg-gray-200 dark:bg-dark-accent text-gray-600 dark:text-gray-300 text-xs rounded-full hover:text-neon-blue"
-                title={`Show articles tagged ${tag}`}
+                title={t.blog.tagTitle(tag)}
               >
-                <Tag size={10} className="inline mr-1" aria-hidden="true" />
+                <Tag size={10} className="inline me-1" aria-hidden="true" />
                 {tag}
               </button>
             ))}
@@ -266,7 +270,7 @@ const Blog: React.FC = () => {
             onClick={() => openArticle(post)}
             className="inline-flex items-center gap-1 font-semibold text-neon-blue hover:gap-2 transition-all"
           >
-            Read more <ArrowRight size={14} />
+            {t.blog.readMore} <ArrowRight size={14} className="rtl:-scale-x-100" />
           </button>
         </div>
       </div>
@@ -276,37 +280,33 @@ const Blog: React.FC = () => {
   return (
     <section id="blog" className="py-20 bg-white dark:bg-dark-primary scroll-mt-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <SectionHeader
-          title="Tech"
-          highlight="Blog"
-          subtitle="Insights, tutorials, and thoughts on web development, game development, and AI"
-        />
+        <SectionHeader title={t.blog.title} highlight={t.blog.highlight} subtitle={t.blog.subtitle} />
 
         {/* Search and Filter */}
         <div className="flex flex-col md:flex-row gap-4 md:gap-6 mb-12">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} aria-hidden="true" />
+            <Search className="absolute start-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} aria-hidden="true" />
             <input
               type="search"
-              placeholder="Search articles or tags..."
-              aria-label="Search articles"
+              placeholder={t.blog.search}
+              aria-label={t.blog.searchLabel}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-10 py-3 bg-gray-50 dark:bg-dark-secondary border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-neon-blue text-gray-900 dark:text-white placeholder:text-gray-400"
+              className="w-full ps-10 pe-10 py-3 bg-gray-50 dark:bg-dark-secondary border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-neon-blue text-gray-900 dark:text-white placeholder:text-gray-400"
             />
             {searchTerm && (
               <button
                 type="button"
                 onClick={() => setSearchTerm('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-neon-blue"
-                aria-label="Clear search"
+                className="absolute end-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-neon-blue"
+                aria-label={t.blog.clearSearch}
               >
                 <X size={18} />
               </button>
             )}
           </div>
 
-          <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by category">
+          <div className="flex flex-wrap gap-2" role="group" aria-label={t.blog.filterLabel}>
             {blogCategories.map((category) => (
               <motion.button
                 key={category}
@@ -321,7 +321,7 @@ const Blog: React.FC = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                {category}
+                {t.blog.categories[category]}
               </motion.button>
             ))}
           </div>
@@ -330,7 +330,7 @@ const Blog: React.FC = () => {
         {filteredPosts.length === 0 && (
           <div className="text-center py-16 text-gray-500 dark:text-gray-400">
             <Search className="mx-auto mb-4 opacity-50" size={40} />
-            <p className="mb-4">No articles found for "{searchTerm}".</p>
+            <p className="mb-4">{t.blog.noResults(searchTerm.trim())}</p>
             <button
               type="button"
               onClick={() => {
@@ -339,14 +339,14 @@ const Blog: React.FC = () => {
               }}
               className="text-neon-blue font-semibold hover:underline"
             >
-              Reset filters
+              {t.blog.reset}
             </button>
           </div>
         )}
 
         {featuredPosts.length > 0 && (
           <div className="mb-16">
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">Featured Articles</h3>
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">{t.blog.featured}</h3>
             <motion.div layout className="grid md:grid-cols-2 gap-8">
               <AnimatePresence mode="popLayout">{featuredPosts.map((post) => renderCard(post, true))}</AnimatePresence>
             </motion.div>
@@ -356,7 +356,7 @@ const Blog: React.FC = () => {
         {otherPosts.length > 0 && (
           <div>
             <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">
-              {featuredPosts.length > 0 ? 'More Articles' : 'Articles'}
+              {featuredPosts.length > 0 ? t.blog.more : t.blog.articles}
             </h3>
             <motion.div layout className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
               <AnimatePresence mode="popLayout">{otherPosts.map((post) => renderCard(post))}</AnimatePresence>
@@ -372,21 +372,19 @@ const Blog: React.FC = () => {
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
         >
-          <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">Stay Updated</h3>
-          <p className="text-white/90 mb-8 max-w-2xl mx-auto">
-            Subscribe to my newsletter for the latest insights on web development, game development, and AI
-          </p>
+          <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">{t.blog.newsletterTitle}</h3>
+          <p className="text-white/90 mb-8 max-w-2xl mx-auto">{t.blog.newsletterText}</p>
 
           {newsletterStatus === 'done' ? (
             <p className="inline-flex items-center gap-2 px-6 py-3 bg-white/20 rounded-lg text-white font-semibold">
-              <Check size={20} /> Thanks for subscribing! 🎉
+              <Check size={20} /> {t.blog.subscribed}
             </p>
           ) : (
             <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto" noValidate>
               <input
                 type="email"
-                placeholder="Enter your email"
-                aria-label="Email address"
+                placeholder={t.blog.emailPlaceholder}
+                aria-label={t.blog.emailLabel}
                 value={newsletterEmail}
                 onChange={(e) => {
                   setNewsletterEmail(e.target.value);
@@ -403,15 +401,15 @@ const Blog: React.FC = () => {
                 whileTap={{ scale: 0.95 }}
               >
                 {newsletterStatus === 'sending' ? <Loader2 className="animate-spin" size={18} /> : <Mail size={18} />}
-                Subscribe
+                {t.blog.subscribe}
               </motion.button>
             </form>
           )}
           {newsletterStatus === 'invalid' && (
-            <p className="mt-3 text-sm text-white font-medium">Please enter a valid email address.</p>
+            <p className="mt-3 text-sm text-white font-medium">{t.blog.invalidEmail}</p>
           )}
           {newsletterStatus === 'error' && (
-            <p className="mt-3 text-sm text-white font-medium">Something went wrong — please try again later.</p>
+            <p className="mt-3 text-sm text-white font-medium">{t.blog.subscribeError}</p>
           )}
         </motion.div>
       </div>
@@ -423,8 +421,8 @@ const Blog: React.FC = () => {
             <div className="relative h-48 sm:h-64">
               <SmartImage src={openPost.image} alt="" className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-              <span className="absolute bottom-4 left-6 px-3 py-1 bg-gradient-to-r from-neon-blue to-neon-purple text-white text-xs font-bold rounded-full">
-                {openPost.category}
+              <span className="absolute bottom-4 start-6 px-3 py-1 bg-gradient-to-r from-neon-blue to-neon-purple text-white text-xs font-bold rounded-full">
+                {t.blog.categories[openPost.category]}
               </span>
             </div>
             <div className="p-6 sm:p-8">
@@ -432,19 +430,19 @@ const Blog: React.FC = () => {
                 id="article-title"
                 className="text-2xl sm:text-3xl font-poppins font-bold text-gray-900 dark:text-white mb-3"
               >
-                {openPost.title}
+                {posts[openPost.slug].title}
               </h2>
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-500 dark:text-gray-400 mb-6">
-                <span>{profile.name}</span>
+                <span dir="ltr">{profile.name}</span>
                 <span className="inline-flex items-center gap-1">
-                  <Calendar size={14} /> {formatDate(openPost.date)}
+                  <Calendar size={14} /> {formatDate(openPost.date, info.locale)}
                 </span>
                 <span className="inline-flex items-center gap-1">
-                  <Clock size={14} /> {openPost.readTime}
+                  <Clock size={14} /> {t.blog.readTime(openPost.minutes)}
                 </span>
               </div>
 
-              <ArticleBody blocks={openPost.content} />
+              <ArticleBody blocks={posts[openPost.slug].content} />
 
               <div className="flex flex-wrap gap-2 mt-8">
                 {openPost.tags.map((tag) => (
@@ -464,7 +462,7 @@ const Blog: React.FC = () => {
                   onClick={() => void handleShare(openPost)}
                   className="inline-flex items-center gap-2 text-sm font-semibold hover:text-neon-blue"
                 >
-                  <Share2 size={16} /> Share article
+                  <Share2 size={16} /> {t.blog.shareArticle}
                 </button>
               </div>
             </div>

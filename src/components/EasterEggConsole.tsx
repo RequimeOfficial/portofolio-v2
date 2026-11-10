@@ -75,6 +75,7 @@ const EasterEggConsole: React.FC<EasterEggConsoleProps> = ({ isOpen, commands, o
         >
           <motion.div
             role="dialog"
+            dir="ltr"
             aria-modal="true"
             aria-label="Secret console"
             className="w-full max-w-2xl h-[28rem] max-h-[85vh] flex flex-col bg-dark-primary/95 text-neon-blue p-5 rounded-xl border border-neon-blue font-mono shadow-[0_0_30px_rgba(0,209,255,0.3)]"

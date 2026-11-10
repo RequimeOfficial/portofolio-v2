@@ -5,48 +5,24 @@ import SectionHeader from '../ui/SectionHeader';
 import { getAssistantReply, type AssistantReply } from '../../lib/assistant';
 import { profile } from '../../data/profile';
 import { scrollToSection } from '../../lib/utils';
+import { useI18n } from '../../contexts/language';
 
 interface Message extends AssistantReply {
   id: number;
   isBot: boolean;
 }
 
-const greeting: Message = {
-  id: 0,
-  isBot: true,
-  text: `Hi! I'm ${profile.brand}'s assistant. Ask me anything about ${profile.shortName}'s skills, experience, projects or services — in English or Bahasa Indonesia!`,
-};
+/** id 0 is the greeting; its text is rendered from the dictionary so it follows the active language. */
+const greeting: Message = { id: 0, isBot: true, text: '' };
 
-const quickQuestions = [
-  'What are his main skills?',
-  'Tell me about his experience',
-  'What projects has he worked on?',
-  'Is he available for hire?',
-  'How can I contact him?',
-];
-
-const features = [
-  {
-    icon: Brain,
-    title: 'Smart Responses',
-    description: 'Answers are generated from the same data that powers this portfolio, so they are always up to date.',
-    color: 'from-blue-500 to-cyan-500',
-  },
-  {
-    icon: Sparkles,
-    title: 'Bilingual',
-    description: 'Ask in English or Bahasa Indonesia — "skills", "keahlian", "kontak" all work.',
-    color: 'from-purple-500 to-pink-500',
-  },
-  {
-    icon: MessageCircle,
-    title: '24/7 Availability',
-    description: 'Get instant answers anytime, then jump straight to the relevant section.',
-    color: 'from-green-500 to-emerald-500',
-  },
+const featureStyles = [
+  { icon: Brain, color: 'from-blue-500 to-cyan-500' },
+  { icon: Sparkles, color: 'from-purple-500 to-pink-500' },
+  { icon: MessageCircle, color: 'from-green-500 to-emerald-500' },
 ];
 
 const AISection: React.FC = () => {
+  const { t, posts } = useI18n();
   const [messages, setMessages] = useState<Message[]>([greeting]);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -74,7 +50,7 @@ const AISection: React.FC = () => {
     // Short "thinking" delay so the conversation feels natural.
     timeoutRef.current = window.setTimeout(
       () => {
-        const reply = getAssistantReply(question);
+        const reply = getAssistantReply(question, t, posts);
         setMessages((prev) => [...prev, { id: nextId.current++, isBot: true, ...reply }]);
         setIsTyping(false);
         inputRef.current?.focus({ preventScroll: true });
@@ -92,11 +68,7 @@ const AISection: React.FC = () => {
   return (
     <section id="ai-section" className="py-20 bg-white dark:bg-dark-primary scroll-mt-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <SectionHeader
-          title="Ask My"
-          highlight="AI Assistant"
-          subtitle="Get instant answers about my skills, experience, and projects through a quick conversation"
-        />
+        <SectionHeader title={t.ai.title} highlight={t.ai.highlight} subtitle={t.ai.subtitle} />
 
         <div className="grid lg:grid-cols-2 gap-12 items-start">
           {/* Features */}
@@ -107,30 +79,33 @@ const AISection: React.FC = () => {
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <h3 className="text-2xl md:text-3xl font-poppins font-bold text-gray-900 dark:text-white text-center lg:text-left">
-              Your Personal Guide to This Portfolio
+            <h3 className="text-2xl md:text-3xl font-poppins font-bold text-gray-900 dark:text-white text-center lg:text-start">
+              {t.ai.heading}
             </h3>
 
             <div className="grid gap-6">
-              {features.map((feature, index) => (
-                <motion.div
-                  key={feature.title}
-                  className="flex items-start gap-4 p-6 bg-gray-50 dark:bg-dark-secondary rounded-2xl"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: index * 0.2 }}
-                  viewport={{ once: true }}
-                  whileHover={{ y: -5 }}
-                >
-                  <div className={`p-3 bg-gradient-to-r ${feature.color} rounded-xl shrink-0`}>
-                    <feature.icon className="text-white" size={24} aria-hidden="true" />
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">{feature.title}</h4>
-                    <p className="text-gray-600 dark:text-gray-300">{feature.description}</p>
-                  </div>
-                </motion.div>
-              ))}
+              {t.ai.features.map((feature, index) => {
+                const { icon: Icon, color } = featureStyles[index]!;
+                return (
+                  <motion.div
+                    key={index}
+                    className="flex items-start gap-4 p-6 bg-gray-50 dark:bg-dark-secondary rounded-2xl"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: index * 0.2 }}
+                    viewport={{ once: true }}
+                    whileHover={{ y: -5 }}
+                  >
+                    <div className={`p-3 bg-gradient-to-r ${color} rounded-xl shrink-0`}>
+                      <Icon className="text-white" size={24} aria-hidden="true" />
+                    </div>
+                    <div>
+                      <h4 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">{feature.title}</h4>
+                      <p className="text-gray-600 dark:text-gray-300">{feature.description}</p>
+                    </div>
+                  </motion.div>
+                );
+              })}
             </div>
           </motion.div>
 
@@ -148,10 +123,10 @@ const AISection: React.FC = () => {
                   <Bot className="text-white" size={20} />
                 </div>
                 <div>
-                  <h4 className="text-lg font-semibold text-gray-900 dark:text-white">AI Assistant</h4>
+                  <h4 className="text-lg font-semibold text-gray-900 dark:text-white">{t.ai.assistantName}</h4>
                   <p className="text-sm text-green-500 flex items-center gap-1.5">
                     <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                    {isTyping ? 'Typing…' : 'Online'}
+                    {isTyping ? t.ai.typing : t.ai.online}
                   </p>
                 </div>
               </div>
@@ -159,8 +134,8 @@ const AISection: React.FC = () => {
                 type="button"
                 onClick={reset}
                 className="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:text-neon-blue hover:bg-gray-200 dark:hover:bg-dark-accent transition-colors"
-                aria-label="Restart conversation"
-                title="Restart conversation"
+                aria-label={t.ai.restart}
+                title={t.ai.restart}
               >
                 <RotateCcw size={18} />
               </button>
@@ -169,10 +144,10 @@ const AISection: React.FC = () => {
             {/* Chat Messages */}
             <div
               ref={listRef}
-              className="h-80 overflow-y-auto overscroll-contain space-y-4 mb-6 pr-1 scrollbar-thin"
+              className="h-80 overflow-y-auto overscroll-contain space-y-4 mb-6 pe-1 scrollbar-thin"
               role="log"
               aria-live="polite"
-              aria-label="Conversation"
+              aria-label={t.ai.conversation}
             >
               {messages.map((message) => (
                 <motion.div
@@ -199,18 +174,20 @@ const AISection: React.FC = () => {
                     <div
                       className={`p-3 rounded-2xl ${
                         message.isBot
-                          ? 'bg-white dark:bg-dark-primary text-gray-900 dark:text-white rounded-tl-sm'
-                          : 'bg-gradient-to-r from-neon-blue to-neon-purple text-white rounded-tr-sm'
+                          ? 'bg-white dark:bg-dark-primary text-gray-900 dark:text-white rounded-ss-sm'
+                          : 'bg-gradient-to-r from-neon-blue to-neon-purple text-white rounded-se-sm'
                       }`}
                     >
-                      <p className="text-sm leading-relaxed">{message.text}</p>
+                      <p className="text-sm leading-relaxed">
+                        {message.id === 0 ? t.assistant.greeting(profile.brand, profile.shortName) : message.text}
+                      </p>
                       {message.action && (
                         <button
                           type="button"
                           onClick={() => scrollToSection(message.action!.sectionId)}
                           className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-neon-blue hover:underline"
                         >
-                          {message.action.label} <ArrowRight size={12} />
+                          {message.action.label} <ArrowRight size={12} className="rtl:-scale-x-100" />
                         </button>
                       )}
                     </div>
@@ -219,7 +196,7 @@ const AISection: React.FC = () => {
               ))}
 
               {isTyping && (
-                <div className="flex justify-start" aria-label="Assistant is typing">
+                <div className="flex justify-start" aria-label={t.ai.assistantTyping}>
                   <div className="flex items-start gap-2">
                     <div className="w-8 h-8 bg-gradient-to-r from-neon-blue to-neon-purple rounded-full flex items-center justify-center">
                       <Bot className="text-white" size={16} />
@@ -238,9 +215,9 @@ const AISection: React.FC = () => {
 
             {/* Quick Questions */}
             <div className="mb-4">
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Quick questions:</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">{t.ai.quickQuestionsLabel}</p>
               <div className="flex flex-wrap gap-2">
-                {quickQuestions.map((question) => (
+                {t.ai.quickQuestions.map((question) => (
                   <button
                     key={question}
                     type="button"
@@ -267,8 +244,8 @@ const AISection: React.FC = () => {
                 type="text"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
-                placeholder={`Ask me about ${profile.shortName}'s skills...`}
-                aria-label="Your question"
+                placeholder={t.ai.placeholder(profile.shortName)}
+                aria-label={t.ai.yourQuestion}
                 maxLength={300}
                 className="flex-1 min-w-0 px-4 py-3 bg-white dark:bg-dark-primary border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-neon-blue text-gray-900 dark:text-white placeholder:text-gray-400"
               />
@@ -278,9 +255,9 @@ const AISection: React.FC = () => {
                 className="px-4 py-3 bg-gradient-to-r from-neon-blue to-neon-purple text-white rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                aria-label="Send question"
+                aria-label={t.ai.send}
               >
-                <Send size={20} />
+                <Send size={20} className="rtl:-scale-x-100" />
               </motion.button>
             </form>
           </motion.div>

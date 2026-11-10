@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, Volume2, VolumeX, Volume1, SkipBack, SkipForward, Music, Minimize2 } from 'lucide-react';
 import { useMusic } from '../contexts/music';
 import { storage } from '../lib/utils';
+import { useI18n } from '../contexts/language';
 
 const formatTime = (seconds: number) => {
   const mins = Math.floor(seconds / 60);
@@ -63,6 +64,7 @@ const MusicPlayer: React.FC = () => {
     prevTrack,
     getAnalyser,
   } = useMusic();
+  const { t } = useI18n();
   const [isMinimized, setIsMinimized] = useState(() => storage.get('music-player-open') !== '1');
   const [elapsed, setElapsed] = useState(0);
   const lastVolume = useRef(volume || 0.5);
@@ -94,7 +96,7 @@ const MusicPlayer: React.FC = () => {
   const trackNumber = tracks.findIndex((t) => t.id === currentTrack.id) + 1;
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
+    <div className="fixed bottom-4 end-4 z-50">
       <AnimatePresence mode="wait" initial={false}>
         {isMinimized ? (
           <motion.button
@@ -107,8 +109,8 @@ const MusicPlayer: React.FC = () => {
             exit={{ scale: 0 }}
             whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.95 }}
-            aria-label="Open music player"
-            title="Music player"
+            aria-label={t.music.open}
+            title={t.music.player}
           >
             <motion.span
               animate={isPlaying ? { rotate: 360 } : { rotate: 0 }}
@@ -117,13 +119,13 @@ const MusicPlayer: React.FC = () => {
               <Music size={24} />
             </motion.span>
             {isPlaying && (
-              <span className="absolute top-1 right-1 w-3 h-3 rounded-full bg-neon-green ring-2 ring-white dark:ring-dark-primary animate-pulse" />
+              <span className="absolute top-1 end-1 w-3 h-3 rounded-full bg-neon-green ring-2 ring-white dark:ring-dark-primary animate-pulse" />
             )}
           </motion.button>
         ) : (
           <motion.section
             key="panel"
-            aria-label="Music player"
+            aria-label={t.music.player}
             className="w-[calc(100vw-2rem)] max-w-xs bg-white/95 dark:bg-dark-primary/95 backdrop-blur-md rounded-2xl p-4 shadow-2xl border border-gray-200 dark:border-white/10"
             initial={{ y: 40, opacity: 0, scale: 0.95 }}
             animate={{ y: 0, opacity: 1, scale: 1 }}
@@ -135,14 +137,14 @@ const MusicPlayer: React.FC = () => {
               <div className="flex items-center gap-2">
                 <span className={`w-2 h-2 rounded-full ${isPlaying ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
                 <span className="text-sm font-medium text-gray-700 dark:text-white">
-                  {isPlaying ? 'Now Playing' : 'Paused'}
+                  {isPlaying ? t.music.nowPlaying : t.music.paused}
                 </span>
               </div>
               <button
                 type="button"
                 onClick={() => setIsMinimized(true)}
                 className="p-1 text-gray-500 dark:text-gray-400 hover:text-neon-blue transition-colors duration-200"
-                aria-label="Minimize music player"
+                aria-label={t.music.minimize}
               >
                 <Minimize2 size={16} />
               </button>
@@ -164,20 +166,22 @@ const MusicPlayer: React.FC = () => {
 
             <Visualizer getAnalyser={getAnalyser} active={isPlaying} />
 
-            <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1 mb-3">
-              <span aria-label="Listening time">{formatTime(elapsed)}</span>
-              <span title="Generated live in your browser">∞ live · {currentTrack.bpm} BPM</span>
+            <div dir="ltr" className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1 mb-3">
+              <span aria-label={t.music.listeningTime}>{formatTime(elapsed)}</span>
+              <span title={t.music.liveTitle}>
+                ∞ {t.music.live} · {currentTrack.bpm} BPM
+              </span>
             </div>
 
-            {/* Controls */}
-            <div className="flex items-center justify-center gap-4 mb-4">
+            {/* Controls (media players keep left-to-right order in every language) */}
+            <div className="flex items-center justify-center gap-4 mb-4" dir="ltr">
               <motion.button
                 type="button"
                 onClick={prevTrack}
                 className="p-2 text-gray-600 dark:text-gray-400 hover:text-neon-blue transition-colors duration-200"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                aria-label="Previous track"
+                aria-label={t.music.prev}
               >
                 <SkipBack size={20} />
               </motion.button>
@@ -188,7 +192,7 @@ const MusicPlayer: React.FC = () => {
                 className="p-3 bg-gradient-to-r from-neon-blue to-neon-purple rounded-full text-white shadow-lg"
                 whileHover={{ scale: 1.05, boxShadow: '0 0 20px rgba(0, 209, 255, 0.5)' }}
                 whileTap={{ scale: 0.95 }}
-                aria-label={isPlaying ? 'Pause' : 'Play'}
+                aria-label={isPlaying ? t.music.pause : t.music.play}
               >
                 {isPlaying ? <Pause size={20} /> : <Play size={20} />}
               </motion.button>
@@ -199,19 +203,19 @@ const MusicPlayer: React.FC = () => {
                 className="p-2 text-gray-600 dark:text-gray-400 hover:text-neon-blue transition-colors duration-200"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                aria-label="Next track"
+                aria-label={t.music.next}
               >
                 <SkipForward size={20} />
               </motion.button>
             </div>
 
             {/* Volume Control */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3" dir="ltr">
               <button
                 type="button"
                 onClick={toggleMute}
                 className="p-1 text-gray-600 dark:text-gray-400 hover:text-neon-blue transition-colors duration-200"
-                aria-label={volume === 0 ? 'Unmute' : 'Mute'}
+                aria-label={volume === 0 ? t.music.unmute : t.music.mute}
               >
                 <VolumeIcon size={18} />
               </button>
@@ -224,9 +228,9 @@ const MusicPlayer: React.FC = () => {
                 onChange={(e) => setVolume(Number(e.target.value))}
                 className="flex-1 h-1 rounded-lg appearance-none slider"
                 style={{ ['--value' as string]: `${volume * 100}%` }}
-                aria-label="Volume"
+                aria-label={t.music.volume}
               />
-              <span className="text-xs text-gray-500 dark:text-gray-400 w-9 text-right tabular-nums">
+              <span className="text-xs text-gray-500 dark:text-gray-400 w-9 text-end tabular-nums">
                 {Math.round(volume * 100)}%
               </span>
             </div>

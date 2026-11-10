@@ -17,8 +17,9 @@ export default {
         },
       },
       fontFamily: {
-        poppins: ['Poppins', 'sans-serif'],
-        inter: ['Inter', 'sans-serif'],
+        // Japanese and Arabic glyphs fall back to Noto Sans JP / Cairo (loaded on demand).
+        poppins: ['Poppins', 'Noto Sans JP', 'Cairo', 'sans-serif'],
+        inter: ['Inter', 'Noto Sans JP', 'Cairo', 'sans-serif'],
       },
       animation: {
         float: 'float 6s ease-in-out infinite',

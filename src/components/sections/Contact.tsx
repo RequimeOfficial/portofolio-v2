@@ -4,6 +4,10 @@ import { Mail, Phone, MapPin, Send, CheckCircle, AlertCircle, MessageCircle, Ext
 import SectionHeader from '../ui/SectionHeader';
 import { profile, socialLinks } from '../../data/profile';
 import { EMAIL_PATTERN, hasFormBackend, sendMessage } from '../../lib/contact';
+import { useI18n } from '../../contexts/language';
+import type { Dictionary } from '../../i18n';
+
+type ErrorKey = keyof Dictionary['contact']['errors'];
 
 const emptyForm = { name: '', email: '', subject: '', message: '', budget: '', timeline: '' };
 type FormField = keyof typeof emptyForm;
@@ -13,44 +17,49 @@ const fieldClass = (hasError: boolean) =>
     hasError ? 'border-red-500' : 'border-gray-200 dark:border-gray-600'
   }`;
 
-const contactInfo = [
-  {
-    icon: Mail,
-    label: 'Email',
-    value: profile.email,
-    href: `mailto:${profile.email}`,
-    color: 'from-blue-500 to-cyan-500',
-  },
-  {
-    icon: Phone,
-    label: 'Phone / WhatsApp',
-    value: profile.phone,
-    href: profile.whatsapp,
-    color: 'from-green-500 to-emerald-500',
-  },
-  {
-    icon: MapPin,
-    label: 'Location',
-    value: profile.location,
-    href: profile.mapsUrl,
-    color: 'from-purple-500 to-pink-500',
-  },
-];
+/** Values sent to the owner stay in English; only the visible labels are translated. */
+const BUDGET_VALUES = ['< $1,000', '$1,000 - $5,000', '$5,000 - $10,000', '> $10,000'];
+const TIMELINE_VALUES = ['ASAP', '1-2 weeks', '1 month', '2-3 months', 'No rush'];
 
 const Contact: React.FC = () => {
+  const { t } = useI18n();
+  const contactInfo = [
+    {
+      icon: Mail,
+      label: t.contact.email,
+      value: profile.email,
+      href: `mailto:${profile.email}`,
+      color: 'from-blue-500 to-cyan-500',
+    },
+    {
+      icon: Phone,
+      label: t.contact.phone,
+      value: profile.phone,
+      href: profile.whatsapp,
+      color: 'from-green-500 to-emerald-500',
+    },
+    {
+      icon: MapPin,
+      label: t.contact.location,
+      value: t.about.location,
+      href: profile.mapsUrl,
+      color: 'from-purple-500 to-pink-500',
+    },
+  ];
   const [formData, setFormData] = useState(emptyForm);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'sent' | 'mailto' | 'error'>('idle');
-  const [errors, setErrors] = useState<Partial<Record<FormField, string>>>({});
+  // Error *keys* are stored (not texts) so messages follow the language if it changes.
+  const [errors, setErrors] = useState<Partial<Record<FormField, ErrorKey>>>({});
 
   const validateForm = () => {
-    const newErrors: Partial<Record<FormField, string>> = {};
-    if (!formData.name.trim()) newErrors.name = 'Name is required';
-    if (!formData.email.trim()) newErrors.email = 'Email is required';
-    else if (!EMAIL_PATTERN.test(formData.email.trim())) newErrors.email = 'Please enter a valid email';
-    if (!formData.subject.trim()) newErrors.subject = 'Subject is required';
-    if (!formData.message.trim()) newErrors.message = 'Message is required';
-    else if (formData.message.trim().length < 10) newErrors.message = 'Message should be at least 10 characters';
+    const newErrors: Partial<Record<FormField, ErrorKey>> = {};
+    if (!formData.name.trim()) newErrors.name = 'name';
+    if (!formData.email.trim()) newErrors.email = 'email';
+    else if (!EMAIL_PATTERN.test(formData.email.trim())) newErrors.email = 'emailInvalid';
+    if (!formData.subject.trim()) newErrors.subject = 'subject';
+    if (!formData.message.trim()) newErrors.message = 'message';
+    else if (formData.message.trim().length < 10) newErrors.message = 'messageShort';
 
     setErrors(newErrors);
     const firstError = Object.keys(newErrors)[0];
@@ -89,9 +98,9 @@ const Contact: React.FC = () => {
 
   const whatsappHref = () => {
     const text = [
-      `Hi ${profile.shortName}!`,
-      formData.name && `I'm ${formData.name}.`,
-      formData.subject && `Subject: ${formData.subject}`,
+      t.contact.whatsappGreeting(profile.shortName),
+      formData.name && t.contact.whatsappIntro(formData.name),
+      formData.subject && t.contact.whatsappSubject(formData.subject),
       formData.message,
     ]
       .filter(Boolean)
@@ -102,7 +111,7 @@ const Contact: React.FC = () => {
   const errorText = (field: FormField) =>
     errors[field] && (
       <p id={`contact-${field}-error`} className="text-red-500 text-sm mt-1">
-        {errors[field]}
+        {t.contact.errors[errors[field]!]}
       </p>
     );
 
@@ -116,11 +125,7 @@ const Contact: React.FC = () => {
   return (
     <section id="contact" className="py-20 bg-gray-50 dark:bg-dark-secondary scroll-mt-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <SectionHeader
-          title="Let's Work"
-          highlight="Together"
-          subtitle="Ready to bring your ideas to life? Get in touch and let's create something amazing together."
-        />
+        <SectionHeader title={t.contact.title} highlight={t.contact.highlight} subtitle={t.contact.subtitle} />
 
         <div className="grid lg:grid-cols-2 gap-12">
           {/* Contact Information */}
@@ -133,12 +138,9 @@ const Contact: React.FC = () => {
           >
             <div>
               <h3 className="text-2xl md:text-3xl font-poppins font-bold text-gray-900 dark:text-white mb-6">
-                Get In Touch
+                {t.contact.getInTouch}
               </h3>
-              <p className="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">
-                I'm always interested in new opportunities and exciting projects. Whether you need a full-stack
-                developer, game developer, or AI integration specialist, I'd love to hear from you.
-              </p>
+              <p className="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">{t.contact.intro}</p>
             </div>
 
             <div className="space-y-4">
@@ -164,10 +166,15 @@ const Contact: React.FC = () => {
                     </div>
                     <div className="min-w-0">
                       <h4 className="font-semibold text-gray-900 dark:text-white">{item.label}</h4>
-                      <p className="text-gray-600 dark:text-gray-300 truncate">{item.value}</p>
+                      <p
+                        className="text-gray-600 dark:text-gray-300 truncate"
+                        dir={item.icon === MapPin ? undefined : 'ltr'}
+                      >
+                        {item.value}
+                      </p>
                     </div>
                     {external && (
-                      <ExternalLink className="ml-auto text-gray-400 group-hover:text-neon-blue shrink-0" size={16} />
+                      <ExternalLink className="ms-auto text-gray-400 group-hover:text-neon-blue shrink-0" size={16} />
                     )}
                   </motion.a>
                 );
@@ -175,7 +182,7 @@ const Contact: React.FC = () => {
             </div>
 
             <div>
-              <h4 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Follow Me</h4>
+              <h4 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">{t.contact.followMe}</h4>
               <div className="flex gap-4">
                 {socialLinks.map((social) => (
                   <motion.a
@@ -200,8 +207,8 @@ const Contact: React.FC = () => {
                 <div className="flex items-center gap-3">
                   <span className="w-3 h-3 bg-green-500 rounded-full animate-pulse shrink-0" />
                   <div>
-                    <h4 className="font-semibold text-gray-900 dark:text-white">Currently Available</h4>
-                    <p className="text-gray-600 dark:text-gray-300">Open for new projects and collaborations</p>
+                    <h4 className="font-semibold text-gray-900 dark:text-white">{t.contact.available}</h4>
+                    <p className="text-gray-600 dark:text-gray-300">{t.contact.availableText}</p>
                   </div>
                 </div>
               </div>
@@ -225,9 +232,7 @@ const Contact: React.FC = () => {
               >
                 <CheckCircle className="text-green-500 shrink-0 mt-0.5" size={20} />
                 <p className="text-green-700 dark:text-green-300">
-                  {submitStatus === 'sent'
-                    ? "Thank you! Your message has been sent successfully. I'll get back to you soon."
-                    : 'Your email app has opened with the message pre-filled — just press send to deliver it.'}
+                  {submitStatus === 'sent' ? t.contact.sent : t.contact.mailto}
                 </p>
               </motion.div>
             )}
@@ -240,9 +245,7 @@ const Contact: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
               >
                 <AlertCircle className="text-red-500 shrink-0 mt-0.5" size={20} />
-                <p className="text-red-700 dark:text-red-300">
-                  Sorry, there was an error sending your message. Please try again or reach me on WhatsApp.
-                </p>
+                <p className="text-red-700 dark:text-red-300">{t.contact.error}</p>
               </motion.div>
             )}
 
@@ -250,11 +253,11 @@ const Contact: React.FC = () => {
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="contact-name" className="sr-only">
-                    Your name
+                    {t.contact.nameLabel}
                   </label>
                   <input
                     type="text"
-                    placeholder="Your Name *"
+                    placeholder={t.contact.name}
                     autoComplete="name"
                     value={formData.name}
                     onChange={handleInputChange}
@@ -266,11 +269,11 @@ const Contact: React.FC = () => {
                 </div>
                 <div>
                   <label htmlFor="contact-email" className="sr-only">
-                    Your email
+                    {t.contact.emailLabel}
                   </label>
                   <input
                     type="email"
-                    placeholder="Your Email *"
+                    placeholder={t.contact.emailField}
                     autoComplete="email"
                     value={formData.email}
                     onChange={handleInputChange}
@@ -284,11 +287,11 @@ const Contact: React.FC = () => {
 
               <div>
                 <label htmlFor="contact-subject" className="sr-only">
-                  Subject
+                  {t.contact.subjectLabel}
                 </label>
                 <input
                   type="text"
-                  placeholder="Subject *"
+                  placeholder={t.contact.subject}
                   value={formData.subject}
                   onChange={handleInputChange}
                   maxLength={150}
@@ -301,7 +304,7 @@ const Contact: React.FC = () => {
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="contact-budget" className="sr-only">
-                    Budget range
+                    {t.contact.budget}
                   </label>
                   <select
                     value={formData.budget}
@@ -309,16 +312,17 @@ const Contact: React.FC = () => {
                     className={fieldClass(false)}
                     {...a11y('budget')}
                   >
-                    <option value="">Budget Range</option>
-                    <option value="< $1,000">Less than $1,000</option>
-                    <option value="$1,000 - $5,000">$1,000 - $5,000</option>
-                    <option value="$5,000 - $10,000">$5,000 - $10,000</option>
-                    <option value="> $10,000">More than $10,000</option>
+                    <option value="">{t.contact.budget}</option>
+                    {BUDGET_VALUES.map((value, i) => (
+                      <option key={value} value={value}>
+                        {t.contact.budgetOptions[i]}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div>
                   <label htmlFor="contact-timeline" className="sr-only">
-                    Timeline
+                    {t.contact.timeline}
                   </label>
                   <select
                     value={formData.timeline}
@@ -326,22 +330,22 @@ const Contact: React.FC = () => {
                     className={fieldClass(false)}
                     {...a11y('timeline')}
                   >
-                    <option value="">Timeline</option>
-                    <option value="ASAP">ASAP</option>
-                    <option value="1-2 weeks">1-2 weeks</option>
-                    <option value="1 month">1 month</option>
-                    <option value="2-3 months">2-3 months</option>
-                    <option value="No rush">No rush</option>
+                    <option value="">{t.contact.timeline}</option>
+                    {TIMELINE_VALUES.map((value, i) => (
+                      <option key={value} value={value}>
+                        {t.contact.timelineOptions[i]}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
 
               <div>
                 <label htmlFor="contact-message" className="sr-only">
-                  Message
+                  {t.contact.messageLabel}
                 </label>
                 <textarea
-                  placeholder="Your Message *"
+                  placeholder={t.contact.message}
                   value={formData.message}
                   onChange={handleInputChange}
                   rows={6}
@@ -363,9 +367,9 @@ const Contact: React.FC = () => {
                   {isSubmitting ? (
                     <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   ) : (
-                    <Send size={20} />
+                    <Send size={20} className="rtl:-scale-x-100" />
                   )}
-                  {isSubmitting ? 'Sending...' : 'Send Message'}
+                  {isSubmitting ? t.contact.sending : t.contact.send}
                 </span>
               </motion.button>
 
@@ -376,13 +380,11 @@ const Contact: React.FC = () => {
                 className="w-full inline-flex items-center justify-center gap-2 px-8 py-3 rounded-xl border-2 border-green-500 text-green-600 dark:text-green-400 font-semibold hover:bg-green-500 hover:text-white transition-colors duration-300"
               >
                 <MessageCircle size={20} />
-                Chat on WhatsApp instead
+                {t.contact.whatsapp}
               </a>
 
               {!hasFormBackend && (
-                <p className="text-xs text-center text-gray-500 dark:text-gray-400">
-                  "Send Message" opens your email app with everything pre-filled.
-                </p>
+                <p className="text-xs text-center text-gray-500 dark:text-gray-400">{t.contact.mailtoNote}</p>
               )}
             </form>
           </motion.div>
@@ -398,19 +400,19 @@ const Contact: React.FC = () => {
         >
           <div className="bg-white dark:bg-dark-primary rounded-3xl p-4 sm:p-8 shadow-xl">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mb-6">
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Find Me in Sumenep</h3>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{t.contact.findMe}</h3>
               <a
                 href={profile.mapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 text-sm font-semibold text-neon-blue hover:underline"
               >
-                Open in Google Maps <ExternalLink size={14} />
+                {t.contact.openMaps} <ExternalLink size={14} />
               </a>
             </div>
             <div className="h-72 md:h-96 rounded-2xl overflow-hidden bg-gray-200 dark:bg-dark-secondary">
               <iframe
-                title={`Map of ${profile.location}`}
+                title={t.contact.mapTitle(t.about.location)}
                 src={profile.mapsEmbed}
                 className="w-full h-full border-0 dark:invert-[0.9] dark:hue-rotate-180"
                 loading="lazy"

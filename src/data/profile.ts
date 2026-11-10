@@ -4,7 +4,7 @@ import { Github, Instagram, Mail, MessageCircle } from 'lucide-react';
 const BIRTH_DATE = '2006-10-29';
 
 /** Age in whole years, computed from the birth date so it never goes stale. */
-function ageFrom(isoDate: string, today = new Date()) {
+export function ageFrom(isoDate: string, today = new Date()) {
   const birth = new Date(`${isoDate}T00:00:00`);
   let age = today.getFullYear() - birth.getFullYear();
   const beforeBirthday =
@@ -14,23 +14,17 @@ function ageFrom(isoDate: string, today = new Date()) {
 }
 
 /**
- * Single source of truth for personal info used across the site.
+ * Single source of truth for language-neutral personal info used across the site.
+ * All visible text (bio, roles, labels...) lives in src/i18n/<lang>.ts.
  * Leave a social `href` empty to hide that link everywhere.
  */
 export const profile = {
   name: 'Ahmad Mofidur Robbiyal Aqla',
   shortName: 'Robbi',
   brand: 'Requime',
-  roles: ['Full Stack Developer', 'Prompt Engineer', 'Game Dev'],
-  tagline: "Code is poetry, and I'm here to write beautiful verses that solve real-world problems.",
-  bio:
-    'A passionate Full Stack Developer with expertise in modern web technologies, game development, ' +
-    'and AI integration. I love creating digital experiences that solve real-world problems and bring ideas to life.',
   birthDate: BIRTH_DATE,
-  age: `${ageFrom(BIRTH_DATE)} Years Old`,
-  location: 'Sumenep, Indonesia',
-  interest: 'Coding & Analysis',
-  experience: '3+ Years Experience',
+  /** Current age in years (localized label comes from the dictionary). */
+  age: ageFrom(BIRTH_DATE),
   avatar: '/images/alif.jpg',
   email: 'robbiansah363@gmail.com',
   phone: '+62 812-5251-7329',
@@ -61,22 +55,16 @@ const allSocials: SocialLink[] = [
 
 export const socialLinks = allSocials.filter((s) => s.href.trim() !== '');
 
+/** Section ids in page order; their labels come from `t.nav.items`. */
 export const navItems = [
-  { name: 'Home', id: 'home' },
-  { name: 'About', id: 'about' },
-  { name: 'Skills', id: 'skills' },
-  { name: 'Projects', id: 'projects' },
-  { name: 'AI Chat', id: 'ai-section' },
-  { name: 'Testimonials', id: 'testimonials' },
-  { name: 'Blog', id: 'blog' },
-  { name: 'Contact', id: 'contact' },
+  'home',
+  'about',
+  'skills',
+  'projects',
+  'ai-section',
+  'testimonials',
+  'blog',
+  'contact',
 ] as const;
 
-export const services = [
-  'Web Development',
-  'Game Development',
-  'AI Integration',
-  'Mobile Apps',
-  'UI/UX Design',
-  'Consulting',
-];
+export type SectionId = (typeof navItems)[number];

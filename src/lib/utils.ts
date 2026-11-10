@@ -43,8 +43,9 @@ export function scrollToTop() {
   window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
 }
 
-export function formatDate(iso: string) {
-  return new Date(`${iso}T00:00:00`).toLocaleDateString('en-US', {
+/** Formats an ISO date (YYYY-MM-DD) for the given locale, e.g. "Jan 15, 2024" / "15 Jan 2024" / "2024年1月15日". */
+export function formatDate(iso: string, locale = 'en-US') {
+  return new Date(`${iso}T00:00:00`).toLocaleDateString(locale, {
     year: 'numeric',
     month: 'short',
     day: 'numeric',

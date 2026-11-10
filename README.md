@@ -12,6 +12,8 @@
 
 **Portofolio pribadi Requime — tempat saya memamerkan proyek web, AI, dan game.**
 
+🇬🇧 English · 🇮🇩 Bahasa Indonesia · 🇯🇵 日本語 · 🇸🇦 العربية
+
 <a href="https://requime.my.id"><img src="https://img.shields.io/badge/🌐_Live_Demo-requime.my.id-00d1ff?style=for-the-badge" alt="Live demo" /></a>
 <a href="#-ambil-cv"><img src="https://img.shields.io/badge/📄_CV-Download-bd00ff?style=for-the-badge" alt="Download CV" /></a>
 
@@ -23,6 +25,7 @@
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
 ![Framer Motion](https://img.shields.io/badge/Framer_Motion-0055FF?style=flat-square&logo=framer&logoColor=white)
 ![Web Audio API](https://img.shields.io/badge/Web_Audio_API-FF6F00?style=flat-square&logo=audiomack&logoColor=white)
+![i18n](https://img.shields.io/badge/i18n-4_languages_%2B_RTL-bd00ff?style=flat-square&logo=googletranslate&logoColor=white)
 
 </div>
 
@@ -37,7 +40,7 @@
 <table>
   <tr>
     <td width="50%"><img src="docs/screenshots/projects.jpg" alt="Projects" /><p align="center"><b>Projects</b> — filter Web / AI / Game</p></td>
-    <td width="50%"><img src="docs/screenshots/ai.jpg" alt="AI Assistant" /><p align="center"><b>AI Assistant</b> — tanya apa saja, 2 bahasa</p></td>
+    <td width="50%"><img src="docs/screenshots/ai.jpg" alt="AI Assistant" /><p align="center"><b>AI Assistant</b> — tanya apa saja, 4 bahasa</p></td>
   </tr>
   <tr>
     <td width="50%"><img src="docs/screenshots/blog.jpg" alt="Blog" /><p align="center"><b>Tech Blog</b> — artikel lengkap + pencarian</p></td>
@@ -47,22 +50,52 @@
 
 ---
 
+## 🌍 Multi-bahasa
+
+Pengunjung bisa mengganti bahasa kapan saja lewat tombol 🌐 di navbar, tanpa memuat ulang halaman.
+**Semua** teks ikut berganti: menu, isi section, 6 artikel blog, testimoni, form, notifikasi, sampai jawaban asisten AI.
+
+| Kode | Bahasa           | Catatan                                                           |
+| ---- | ---------------- | ----------------------------------------------------------------- |
+| `en` | English          | Bahasa default                                                    |
+| `id` | Bahasa Indonesia |                                                                   |
+| `ja` | 日本語           | Font Noto Sans JP, judul tanpa spasi, kutipan 「…」               |
+| `ar` | العربية          | Tata letak **kanan-ke-kiri (RTL)** penuh, font Cairo, kutipan «…» |
+
+<div align="center">
+  <img src="docs/screenshots/languages.jpg" alt="Tampilan dalam 4 bahasa" width="100%" />
+</div>
+
+<table>
+  <tr>
+    <td width="60%" align="center"><img src="docs/screenshots/language-switcher.jpg" alt="Pemilih bahasa" /><p><b>Pemilih bahasa</b> di navbar</p></td>
+    <td width="40%" align="center"><img src="docs/screenshots/mobile-arabic-menu.jpg" alt="Menu mobile bahasa Arab" width="200" /><p><b>Mobile + RTL</b> (العربية)</p></td>
+  </tr>
+</table>
+
+- 🧭 **Deteksi otomatis**: bahasa browser pengunjung → pilihan yang tersimpan → `?lang=` di URL (contoh: `requime.my.id/?lang=ja`).
+- 🔤 Font Jepang & Arab hanya diunduh saat bahasa tersebut dipakai, jadi situs tetap ringan.
+- 🛡️ Kamus bertipe TypeScript: jika satu bahasa kekurangan satu teks saja, build langsung gagal.
+
+---
+
 ## ✨ Fitur Unggulan
 
-|     | Fitur                 | Keterangan                                                                             |
-| --- | --------------------- | -------------------------------------------------------------------------------------- |
-| ⌨️  | **Hero interaktif**   | Efek mengetik, ikon teknologi melayang, latar partikel, tombol Download CV             |
-| 🧑‍💻  | **About & Journey**   | Profil singkat (umur dihitung otomatis dari tanggal lahir) dan timeline perjalanan     |
-| 🛠️  | **Tech Stack**        | 6 kategori skill dengan progress bar animasi                                           |
-| 🚀  | **Projects**          | Filter kategori, link Live Demo & Source                                               |
-| 🤖  | **AI Assistant**      | Chatbot berbasis data portofolio, paham Bahasa Indonesia & Inggris                     |
-| 💬  | **Testimonials**      | Carousel auto-play + swipe, form kirim testimoni                                       |
-| 📝  | **Tech Blog**         | 6 artikel lengkap, pencarian, filter, like, share, link langsung `#blog/<slug>`        |
-| 📬  | **Contact**           | Form tervalidasi, tombol WhatsApp, dan Google Maps                                     |
-| 🎵  | **Music player**      | Musik lo-fi **generatif** langsung di browser (tanpa file audio), 3 track + visualizer |
-| 🌗  | **Dark / Light mode** | Pilihan tema tersimpan otomatis                                                        |
-| 🎮  | **Easter eggs**       | Secret console `Ctrl + Alt + A` dengan mini game, plus kode Konami ↑↑↓↓←→←→BA          |
-| ♿  | **Aksesibel & cepat** | Navigasi keyboard, label ARIA, dukungan _reduce motion_, gambar teroptimasi, SEO siap  |
+|     | Fitur                 | Keterangan                                                                               |
+| --- | --------------------- | ---------------------------------------------------------------------------------------- |
+| ⌨️  | **Hero interaktif**   | Efek mengetik, ikon teknologi melayang, latar partikel, tombol Download CV               |
+| 🧑‍💻  | **About & Journey**   | Profil singkat (umur dihitung otomatis dari tanggal lahir) dan timeline perjalanan       |
+| 🛠️  | **Tech Stack**        | 6 kategori skill dengan progress bar animasi                                             |
+| 🚀  | **Projects**          | Filter kategori, link Live Demo & Source                                                 |
+| 🤖  | **AI Assistant**      | Chatbot berbasis data portofolio, paham & menjawab dalam 4 bahasa                        |
+| 💬  | **Testimonials**      | Carousel auto-play + swipe, form kirim testimoni                                         |
+| 📝  | **Tech Blog**         | 6 artikel lengkap, pencarian, filter, like, share, link langsung `#blog/<slug>`          |
+| 📬  | **Contact**           | Form tervalidasi, tombol WhatsApp, dan Google Maps                                       |
+| 🎵  | **Music player**      | Musik lo-fi **generatif** langsung di browser (tanpa file audio), 3 track + visualizer   |
+| 🌍  | **4 bahasa + RTL**    | English, Indonesia, 日本語, العربية — ganti bahasa instan, tata letak Arab kanan-ke-kiri |
+| 🌗  | **Dark / Light mode** | Pilihan tema tersimpan otomatis                                                          |
+| 🎮  | **Easter eggs**       | Secret console `Ctrl + Alt + A` dengan mini game, plus kode Konami ↑↑↓↓←→←→BA            |
+| ♿  | **Aksesibel & cepat** | Navigasi keyboard, label ARIA, dukungan _reduce motion_, gambar teroptimasi, SEO siap    |
 
 ---
 
@@ -95,8 +128,9 @@ src/
 ├── components/
 │   ├── sections/      # Hero, About, TechStack, Projects, AISection, Testimonials, Blog, Contact
 │   └── ui/            # Komponen kecil yang dipakai ulang (Modal, Avatar, SectionHeader, ...)
-├── contexts/          # Tema & music player
-├── data/              # ✏️ SEMUA konten situs ada di sini
+├── contexts/          # Tema, bahasa & music player
+├── data/              # Data netral bahasa: kontak, link, gambar, skill, urutan proyek
+├── i18n/              # ✏️ Semua teks per bahasa (en, id, ja, ar) + artikel blog di i18n/posts/
 ├── hooks/             # Scrollspy & easter egg
 └── lib/               # Asisten AI, mesin musik, pengiriman form, utilitas
 public/
@@ -108,15 +142,23 @@ public/
 
 ## ✏️ Mengubah Konten
 
-Semua isi website cukup diubah di folder **`src/data/`**, tanpa menyentuh komponen:
+Semua isi website bisa diubah tanpa menyentuh komponen:
 
-| File              | Isi                                                                    |
-| ----------------- | ---------------------------------------------------------------------- |
-| `profile.ts`      | Nama, bio, tanggal lahir, kontak, lokasi & peta, sosial media, layanan |
-| `projects.ts`     | Daftar proyek                                                          |
-| `skills.ts`       | Tech stack, statistik, timeline                                        |
-| `testimonials.ts` | Testimoni klien                                                        |
-| `posts.ts`        | Artikel blog                                                           |
+| File                         | Isi                                                                                   |
+| ---------------------------- | ------------------------------------------------------------------------------------- |
+| `src/data/profile.ts`        | Nama, tanggal lahir, kontak, lokasi & peta, sosial media                              |
+| `src/data/projects.ts`       | Gambar, teknologi, dan link setiap proyek                                             |
+| `src/data/skills.ts`         | Tech stack, level skill, statistik, tahun timeline                                    |
+| `src/data/testimonials.ts`   | Nama, perusahaan, rating, foto klien                                                  |
+| `src/data/posts.ts`          | Tanggal, gambar, tag, dan durasi baca artikel                                         |
+| `src/i18n/<bahasa>.ts`       | **Semua teks** (bio, judul, deskripsi proyek, testimoni, form, jawaban AI) per bahasa |
+| `src/i18n/posts/<bahasa>.ts` | Isi lengkap artikel blog per bahasa                                                   |
+
+**Menambah bahasa baru** (misalnya Korea):
+
+1. Salin `src/i18n/en.ts` menjadi `ko.ts`, lalu terjemahkan isinya. TypeScript akan menandai teks yang terlewat.
+2. Lakukan hal yang sama untuk `src/i18n/posts/en.ts`.
+3. Daftarkan bahasanya di `src/i18n/languages.ts` dan `src/i18n/index.ts`, juga di daftar `langs` pada `index.html`.
 
 <a id="-ambil-cv"></a>
 

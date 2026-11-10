@@ -5,14 +5,15 @@ import SectionHeader from '../ui/SectionHeader';
 import Avatar from '../ui/Avatar';
 import { testimonialStats, testimonials } from '../../data/testimonials';
 import { sendMessage, hasFormBackend } from '../../lib/contact';
+import { useI18n } from '../../contexts/language';
 
 const emptyForm = { name: '', role: '', company: '', rating: 5, content: '' };
 
 const inputClass =
   'w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-neon-blue bg-white dark:bg-dark-secondary text-gray-900 dark:text-white placeholder:text-gray-400';
 
-const Stars: React.FC<{ rating: number }> = ({ rating }) => (
-  <div className="flex gap-1" role="img" aria-label={`Rated ${rating} out of 5`}>
+const Stars: React.FC<{ rating: number; label: string }> = ({ rating, label }) => (
+  <div className="flex gap-1" role="img" aria-label={label}>
     {[1, 2, 3, 4, 5].map((star) => (
       <Star
         key={star}
@@ -25,6 +26,9 @@ const Stars: React.FC<{ rating: number }> = ({ rating }) => (
 );
 
 const Testimonials: React.FC = () => {
+  const { t, info } = useI18n();
+  // In right-to-left languages "next" lives on the left, so slides and swipes are mirrored.
+  const rtl = info.dir === 'rtl' ? -1 : 1;
   const [[currentIndex, direction], setSlide] = useState<[number, number]>([0, 1]);
   const [isPaused, setIsPaused] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -43,9 +47,10 @@ const Testimonials: React.FC = () => {
     return () => window.clearInterval(id);
   }, [isPaused, paginate, currentIndex]);
 
-  const onDragEnd = (_: unknown, info: PanInfo) => {
-    if (info.offset.x < -60) paginate(1);
-    else if (info.offset.x > 60) paginate(-1);
+  const onDragEnd = (_: unknown, pan: PanInfo) => {
+    const dx = pan.offset.x * rtl;
+    if (dx < -60) paginate(1);
+    else if (dx > 60) paginate(-1);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -70,7 +75,11 @@ const Testimonials: React.FC = () => {
   return (
     <section id="testimonials" className="py-20 bg-gray-50 dark:bg-dark-secondary scroll-mt-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <SectionHeader title="Client" highlight="Testimonials" subtitle="What clients say about working with me" />
+        <SectionHeader
+          title={t.testimonials.title}
+          highlight={t.testimonials.highlight}
+          subtitle={t.testimonials.subtitle}
+        />
 
         {/* Carousel */}
         <div
@@ -80,16 +89,16 @@ const Testimonials: React.FC = () => {
           onFocus={() => setIsPaused(true)}
           onBlur={() => setIsPaused(false)}
           aria-roledescription="carousel"
-          aria-label="Client testimonials"
+          aria-label={t.testimonials.carousel}
         >
           <div className="overflow-hidden rounded-3xl">
             <AnimatePresence mode="wait" custom={direction} initial={false}>
               <motion.figure
                 key={current.id}
                 custom={direction}
-                initial={{ opacity: 0, x: direction * 80 }}
+                initial={{ opacity: 0, x: direction * rtl * 80 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: direction * -80 }}
+                exit={{ opacity: 0, x: direction * rtl * -80 }}
                 transition={{ duration: 0.4 }}
                 drag="x"
                 dragConstraints={{ left: 0, right: 0 }}
@@ -97,24 +106,24 @@ const Testimonials: React.FC = () => {
                 onDragEnd={onDragEnd}
                 className="bg-white dark:bg-dark-primary rounded-3xl p-8 md:p-12 shadow-xl relative cursor-grab active:cursor-grabbing select-none"
                 aria-roledescription="slide"
-                aria-label={`${currentIndex + 1} of ${testimonials.length}`}
+                aria-label={t.testimonials.slide(currentIndex + 1, testimonials.length)}
               >
-                <Quote className="absolute top-6 left-6 text-neon-blue/20" size={48} aria-hidden="true" />
+                <Quote className="absolute top-6 start-6 text-neon-blue/20" size={48} aria-hidden="true" />
 
                 <div className="flex justify-center mb-6">
-                  <Stars rating={current.rating} />
+                  <Stars rating={current.rating} label={t.testimonials.rated(current.rating)} />
                 </div>
 
                 <blockquote className="text-lg md:text-2xl text-gray-700 dark:text-gray-300 text-center mb-8 leading-relaxed">
-                  "{current.content}"
+                  <q>{t.testimonials.items[current.id].content}</q>
                 </blockquote>
 
                 <figcaption className="flex items-center justify-center gap-4">
                   <Avatar name={current.name} src={current.avatar} />
-                  <div className="text-left">
+                  <div className="text-start">
                     <div className="text-lg font-semibold text-gray-900 dark:text-white">{current.name}</div>
                     <div className="text-gray-600 dark:text-gray-400">
-                      {current.role} at {current.company}
+                      {t.testimonials.roleAt(t.testimonials.items[current.id].role, current.company)}
                     </div>
                   </div>
                 </figcaption>
@@ -127,21 +136,21 @@ const Testimonials: React.FC = () => {
             <motion.button
               type="button"
               onClick={() => paginate(-1)}
-              className="lg:absolute lg:top-1/2 lg:-translate-y-1/2 lg:-left-16 p-3 bg-white dark:bg-dark-primary rounded-full shadow-lg text-gray-600 dark:text-gray-300 hover:text-neon-blue transition-colors duration-200"
+              className="lg:absolute lg:top-1/2 lg:-translate-y-1/2 lg:-start-16 p-3 bg-white dark:bg-dark-primary rounded-full shadow-lg text-gray-600 dark:text-gray-300 hover:text-neon-blue transition-colors duration-200"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
-              aria-label="Previous testimonial"
+              aria-label={t.testimonials.prev}
             >
-              <ChevronLeft size={24} />
+              <ChevronLeft size={24} className="rtl:-scale-x-100" />
             </motion.button>
 
             <div className="flex gap-2">
-              {testimonials.map((t, index) => (
+              {testimonials.map((item, index) => (
                 <button
-                  key={t.id}
+                  key={item.id}
                   type="button"
                   onClick={() => setSlide([index, index > currentIndex ? 1 : -1])}
-                  aria-label={`Show testimonial ${index + 1}`}
+                  aria-label={t.testimonials.show(index + 1)}
                   aria-current={index === currentIndex}
                   className={`h-3 rounded-full transition-all duration-300 ${
                     index === currentIndex ? 'w-8 bg-neon-blue' : 'w-3 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400'
@@ -153,12 +162,12 @@ const Testimonials: React.FC = () => {
             <motion.button
               type="button"
               onClick={() => paginate(1)}
-              className="lg:absolute lg:top-1/2 lg:-translate-y-1/2 lg:-right-16 p-3 bg-white dark:bg-dark-primary rounded-full shadow-lg text-gray-600 dark:text-gray-300 hover:text-neon-blue transition-colors duration-200"
+              className="lg:absolute lg:top-1/2 lg:-translate-y-1/2 lg:-end-16 p-3 bg-white dark:bg-dark-primary rounded-full shadow-lg text-gray-600 dark:text-gray-300 hover:text-neon-blue transition-colors duration-200"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
-              aria-label="Next testimonial"
+              aria-label={t.testimonials.next}
             >
-              <ChevronRight size={24} />
+              <ChevronRight size={24} className="rtl:-scale-x-100" />
             </motion.button>
           </div>
         </div>
@@ -171,9 +180,9 @@ const Testimonials: React.FC = () => {
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
         >
-          {testimonialStats.map((stat) => (
+          {testimonialStats.map((stat, i) => (
             <motion.div
-              key={stat.label}
+              key={stat.number}
               className="text-center p-6 bg-white dark:bg-dark-primary rounded-2xl shadow-lg"
               whileHover={{ y: -10, scale: 1.05 }}
               transition={{ duration: 0.3 }}
@@ -181,8 +190,10 @@ const Testimonials: React.FC = () => {
               <div className="text-3xl mb-2" aria-hidden="true">
                 {stat.icon}
               </div>
-              <div className="text-2xl md:text-3xl font-bold text-neon-blue mb-1">{stat.number}</div>
-              <div className="text-sm text-gray-600 dark:text-gray-300">{stat.label}</div>
+              <div className="text-2xl md:text-3xl font-bold text-neon-blue mb-1" dir="ltr">
+                {stat.number}
+              </div>
+              <div className="text-sm text-gray-600 dark:text-gray-300">{t.testimonials.stats[i]}</div>
             </motion.div>
           ))}
         </motion.div>
@@ -201,8 +212,8 @@ const Testimonials: React.FC = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <Plus className={`inline mr-2 transition-transform ${showForm ? 'rotate-45' : ''}`} size={20} />
-            {showForm ? 'Close Form' : 'Add Your Testimonial'}
+            <Plus className={`inline me-2 transition-transform ${showForm ? 'rotate-45' : ''}`} size={20} />
+            {showForm ? t.testimonials.closeForm : t.testimonials.add}
           </motion.button>
         </div>
 
@@ -220,37 +231,37 @@ const Testimonials: React.FC = () => {
                 {status === 'sent' || status === 'mailto' ? (
                   <div className="text-center py-6">
                     <CheckCircle className="mx-auto text-green-500 mb-4" size={48} />
-                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Thank you! 🙏</h3>
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                      {t.testimonials.thanksTitle}
+                    </h3>
                     <p className="text-gray-600 dark:text-gray-300 mb-6">
-                      {status === 'sent'
-                        ? 'Your testimonial has been sent and will appear here after review.'
-                        : 'Your email app has opened with the testimonial pre-filled — just hit send.'}
+                      {status === 'sent' ? t.testimonials.thanksSent : t.testimonials.thanksMailto}
                     </p>
                     <button
                       type="button"
                       onClick={() => setStatus('idle')}
                       className="text-neon-blue font-semibold hover:underline"
                     >
-                      Write another one
+                      {t.testimonials.writeAnother}
                     </button>
                   </div>
                 ) : (
                   <form onSubmit={handleSubmit}>
                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
-                      Share Your Experience
+                      {t.testimonials.formTitle}
                     </h3>
 
                     {status === 'error' && (
                       <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-sm flex items-center gap-2">
-                        <AlertCircle size={16} /> Something went wrong. Please try again.
+                        <AlertCircle size={16} /> {t.testimonials.error}
                       </div>
                     )}
 
                     <div className="grid md:grid-cols-2 gap-4 mb-4">
                       <input
                         type="text"
-                        placeholder="Your Name *"
-                        aria-label="Your name"
+                        placeholder={t.testimonials.name}
+                        aria-label={t.testimonials.name.replace(' *', '')}
                         value={form.name}
                         onChange={(e) => setForm({ ...form, name: e.target.value })}
                         className={inputClass}
@@ -259,8 +270,8 @@ const Testimonials: React.FC = () => {
                       />
                       <input
                         type="text"
-                        placeholder="Your Role *"
-                        aria-label="Your role"
+                        placeholder={t.testimonials.role}
+                        aria-label={t.testimonials.role.replace(' *', '')}
                         value={form.role}
                         onChange={(e) => setForm({ ...form, role: e.target.value })}
                         className={inputClass}
@@ -271,8 +282,8 @@ const Testimonials: React.FC = () => {
 
                     <input
                       type="text"
-                      placeholder="Company Name *"
-                      aria-label="Company name"
+                      placeholder={t.testimonials.company}
+                      aria-label={t.testimonials.company.replace(' *', '')}
                       value={form.company}
                       onChange={(e) => setForm({ ...form, company: e.target.value })}
                       className={`${inputClass} mb-4`}
@@ -282,7 +293,7 @@ const Testimonials: React.FC = () => {
 
                     <fieldset className="mb-4">
                       <legend className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Rating
+                        {t.testimonials.rating}
                       </legend>
                       <div className="flex gap-1" onMouseLeave={() => setHoverRating(0)}>
                         {[1, 2, 3, 4, 5].map((star) => (
@@ -291,7 +302,7 @@ const Testimonials: React.FC = () => {
                             type="button"
                             onClick={() => setForm({ ...form, rating: star })}
                             onMouseEnter={() => setHoverRating(star)}
-                            aria-label={`${star} star${star > 1 ? 's' : ''}`}
+                            aria-label={t.testimonials.stars(star)}
                             aria-pressed={form.rating === star}
                             className={
                               star <= (hoverRating || form.rating)
@@ -308,8 +319,8 @@ const Testimonials: React.FC = () => {
                     </fieldset>
 
                     <textarea
-                      placeholder="Your testimonial... *"
-                      aria-label="Your testimonial"
+                      placeholder={t.testimonials.content}
+                      aria-label={t.testimonials.content.replace(' *', '')}
                       value={form.content}
                       onChange={(e) => setForm({ ...form, content: e.target.value })}
                       rows={4}
@@ -328,19 +339,19 @@ const Testimonials: React.FC = () => {
                         whileTap={{ scale: 0.98 }}
                       >
                         {status === 'sending' && <Loader2 className="animate-spin" size={18} />}
-                        {status === 'sending' ? 'Sending...' : 'Submit Testimonial'}
+                        {status === 'sending' ? t.testimonials.sending : t.testimonials.submit}
                       </motion.button>
                       <button
                         type="button"
                         onClick={() => setShowForm(false)}
                         className="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-dark-secondary"
                       >
-                        Cancel
+                        {t.testimonials.cancel}
                       </button>
                     </div>
                     {!hasFormBackend && (
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 text-center">
-                        Submitting opens your email app with the testimonial pre-filled.
+                        {t.testimonials.mailtoNote}
                       </p>
                     )}
                   </form>

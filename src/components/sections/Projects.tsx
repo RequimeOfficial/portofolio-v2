@@ -5,6 +5,7 @@ import SectionHeader from '../ui/SectionHeader';
 import SmartImage from '../ui/SmartImage';
 import { projectCategories, projects, type ProjectCategory } from '../../data/projects';
 import { profile } from '../../data/profile';
+import { useI18n } from '../../contexts/language';
 
 const categoryBadge: Record<ProjectCategory, string> = {
   Web: 'bg-blue-100 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300',
@@ -16,6 +17,7 @@ const linkButton =
   'inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 dark:text-gray-300 transition-colors duration-200';
 
 const Projects: React.FC = () => {
+  const { t } = useI18n();
   const [activeFilter, setActiveFilter] = useState<(typeof projectCategories)[number]>('All');
 
   const filteredProjects =
@@ -24,14 +26,10 @@ const Projects: React.FC = () => {
   return (
     <section id="projects" className="py-20 bg-gray-50 dark:bg-dark-secondary scroll-mt-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <SectionHeader
-          title="Featured"
-          highlight="Projects"
-          subtitle="A showcase of my best work across web development, AI, and game development"
-        />
+        <SectionHeader title={t.projects.title} highlight={t.projects.highlight} subtitle={t.projects.subtitle} />
 
         {/* Filter Buttons */}
-        <div className="flex flex-wrap justify-center gap-3 mb-12" role="group" aria-label="Filter projects">
+        <div className="flex flex-wrap justify-center gap-3 mb-12" role="group" aria-label={t.projects.filterLabel}>
           {projectCategories.map((category) => {
             const count = category === 'All' ? projects.length : projects.filter((p) => p.category === category).length;
             return (
@@ -48,9 +46,9 @@ const Projects: React.FC = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <Filter className="inline mr-2" size={16} aria-hidden="true" />
-                {category}
-                <span className="ml-1.5 text-xs opacity-70">({count})</span>
+                <Filter className="inline me-2" size={16} aria-hidden="true" />
+                {t.projects.categories[category]}
+                <span className="ms-1.5 text-xs opacity-70">({count})</span>
               </motion.button>
             );
           })}
@@ -70,8 +68,8 @@ const Projects: React.FC = () => {
                 className="group relative flex flex-col bg-white dark:bg-dark-primary rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-[box-shadow,transform] duration-300"
               >
                 {project.featured && (
-                  <div className="absolute top-4 left-4 z-10 px-3 py-1 bg-gradient-to-r from-neon-blue to-neon-purple text-white text-xs font-bold rounded-full">
-                    FEATURED
+                  <div className="absolute top-4 start-4 z-10 px-3 py-1 bg-gradient-to-r from-neon-blue to-neon-purple text-white text-xs font-bold rounded-full">
+                    {t.common.featured}
                   </div>
                 )}
 
@@ -79,8 +77,8 @@ const Projects: React.FC = () => {
                 <div className="relative h-48 overflow-hidden">
                   <SmartImage
                     src={project.image}
-                    alt={project.title}
-                    fallbackLabel={project.title}
+                    alt={t.projects.items[project.id].title}
+                    fallbackLabel={t.projects.items[project.id].title}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -89,17 +87,19 @@ const Projects: React.FC = () => {
                 {/* Project Info */}
                 <div className="p-6 flex flex-col flex-1">
                   <div className="flex items-start justify-between gap-3 mb-2">
-                    <h3 className="text-xl font-poppins font-bold text-gray-900 dark:text-white">{project.title}</h3>
+                    <h3 className="text-xl font-poppins font-bold text-gray-900 dark:text-white">
+                      {t.projects.items[project.id].title}
+                    </h3>
                     <span
                       className={`shrink-0 px-2 py-1 text-xs font-medium rounded-full ${categoryBadge[project.category]}`}
                     >
-                      {project.category}
+                      {t.projects.categories[project.category]}
                     </span>
                   </div>
 
-                  <p className="text-gray-600 dark:text-gray-300 mb-4">{project.description}</p>
+                  <p className="text-gray-600 dark:text-gray-300 mb-4">{t.projects.items[project.id].description}</p>
 
-                  <ul className="flex flex-wrap gap-2 mb-5" aria-label="Technologies">
+                  <ul className="flex flex-wrap gap-2 mb-5" aria-label={t.projects.technologies}>
                     {project.technologies.map((tech) => (
                       <li
                         key={tech}
@@ -118,9 +118,9 @@ const Projects: React.FC = () => {
                         target="_blank"
                         rel="noopener noreferrer"
                         className={`${linkButton} hover:text-neon-blue`}
-                        aria-label={`Open live demo of ${project.title}`}
+                        aria-label={t.projects.openLive(t.projects.items[project.id].title)}
                       >
-                        <ExternalLink size={16} /> Live Demo
+                        <ExternalLink size={16} /> {t.projects.liveDemo}
                       </a>
                     )}
                     {project.githubUrl && (
@@ -129,13 +129,13 @@ const Projects: React.FC = () => {
                         target="_blank"
                         rel="noopener noreferrer"
                         className={`${linkButton} hover:text-neon-purple`}
-                        aria-label={`View source of ${project.title} on GitHub`}
+                        aria-label={t.projects.viewSource(t.projects.items[project.id].title)}
                       >
-                        <Github size={16} /> Source
+                        <Github size={16} /> {t.projects.source}
                       </a>
                     )}
                     {!project.liveUrl && !project.githubUrl && (
-                      <span className="text-sm text-gray-400 dark:text-gray-500 italic">Private / in development</span>
+                      <span className="text-sm text-gray-400 dark:text-gray-500 italic">{t.projects.private}</span>
                     )}
                   </div>
                 </div>
@@ -163,7 +163,7 @@ const Projects: React.FC = () => {
             whileTap={{ scale: 0.95 }}
           >
             <Github size={20} />
-            View All Projects on GitHub
+            {t.projects.viewAll}
           </motion.a>
         </motion.div>
       </div>

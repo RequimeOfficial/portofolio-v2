@@ -4,10 +4,10 @@ import { Menu, X, Sun, Moon, Volume2, VolumeX } from 'lucide-react';
 import { useTheme } from '../contexts/theme';
 import { useMusic } from '../contexts/music';
 import { useActiveSection } from '../hooks/useActiveSection';
+import { useI18n } from '../contexts/language';
+import LanguageSwitcher from './LanguageSwitcher';
 import { navItems, profile } from '../data/profile';
 import { scrollToSection } from '../lib/utils';
-
-const sectionIds = navItems.map((item) => item.id);
 
 const iconButton =
   'p-2 rounded-lg bg-gray-200/80 dark:bg-dark-secondary text-gray-700 dark:text-gray-300 hover:text-neon-blue dark:hover:text-neon-blue transition-colors duration-200';
@@ -17,7 +17,8 @@ const Navbar: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
   const { isDark, toggleTheme } = useTheme();
   const { isPlaying, toggleMusic, isSupported } = useMusic();
-  const active = useActiveSection(sectionIds);
+  const { t } = useI18n();
+  const active = useActiveSection(navItems);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -29,7 +30,7 @@ const Navbar: React.FC = () => {
   useEffect(() => {
     if (!isOpen) return;
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setIsOpen(false);
-    const onResize = () => window.innerWidth >= 1024 && setIsOpen(false);
+    const onResize = () => window.innerWidth >= 1280 && setIsOpen(false);
     document.addEventListener('keydown', onKey);
     window.addEventListener('resize', onResize);
     return () => {
@@ -47,7 +48,7 @@ const Navbar: React.FC = () => {
 
   return (
     <motion.nav
-      aria-label="Main navigation"
+      aria-label={t.nav.mainNav}
       className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
         solid ? 'bg-white/85 dark:bg-dark-primary/90 backdrop-blur-md shadow-lg' : 'bg-transparent'
       }`}
@@ -65,34 +66,34 @@ const Navbar: React.FC = () => {
               go('home');
             }}
             className="flex items-center gap-2 min-w-0 text-lg sm:text-xl font-poppins font-bold text-gray-900 dark:text-white"
-            aria-label={`${profile.name} — back to top`}
+            aria-label={`${profile.name} — ${t.nav.backToTop}`}
           >
             <img src={profile.avatar} alt="" className="w-9 h-9 rounded-full object-cover ring-2 ring-neon-blue/60" />
-            <span className="truncate xl:hidden">
+            <span className="truncate 2xl:hidden" dir="ltr">
               <span className="text-neon-blue">R</span>obbiyal <span className="text-neon-purple">A</span>qla
             </span>
-            <span className="truncate hidden xl:inline">
+            <span className="truncate hidden 2xl:inline" dir="ltr">
               <span className="text-neon-blue">A</span>hmad Mofidur <span className="text-neon-purple">R</span>obbiyal
               Aqla
             </span>
           </a>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-1">
-            {navItems.map((item) => (
+          <div className="hidden xl:flex items-center gap-0.5">
+            {navItems.map((id) => (
               <button
-                key={item.id}
+                key={id}
                 type="button"
-                onClick={() => go(item.id)}
-                aria-current={active === item.id ? 'true' : undefined}
-                className={`relative px-2.5 xl:px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
-                  active === item.id
+                onClick={() => go(id)}
+                aria-current={active === id ? 'true' : undefined}
+                className={`relative px-2.5 py-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors duration-200 ${
+                  active === id
                     ? 'text-neon-blue'
                     : 'text-gray-700 dark:text-gray-300 hover:text-neon-blue dark:hover:text-neon-blue'
                 }`}
               >
-                {item.name}
-                {active === item.id && (
+                {t.nav.items[id]}
+                {active === id && (
                   <motion.span
                     layoutId="nav-underline"
                     className="absolute left-2 right-2 -bottom-0.5 h-0.5 rounded-full bg-gradient-to-r from-neon-blue to-neon-purple"
@@ -103,15 +104,17 @@ const Navbar: React.FC = () => {
           </div>
 
           {/* Theme & Music Controls */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
+            <LanguageSwitcher />
+
             <motion.button
               type="button"
               onClick={toggleTheme}
               className={iconButton}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
-              aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-              title={isDark ? 'Light mode' : 'Dark mode'}
+              aria-label={isDark ? t.nav.switchToLight : t.nav.switchToDark}
+              title={isDark ? t.nav.lightMode : t.nav.darkMode}
             >
               {isDark ? <Sun size={20} /> : <Moon size={20} />}
             </motion.button>
@@ -120,12 +123,13 @@ const Navbar: React.FC = () => {
               <motion.button
                 type="button"
                 onClick={toggleMusic}
-                className={iconButton}
+                // On phones the floating music player is enough; this keeps the bar uncluttered.
+                className={`hidden sm:inline-flex ${iconButton}`}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                aria-label={isPlaying ? 'Pause background music' : 'Play background music'}
+                aria-label={isPlaying ? t.nav.pauseMusic : t.nav.playMusic}
                 aria-pressed={isPlaying}
-                title={isPlaying ? 'Pause music' : 'Play music'}
+                title={isPlaying ? t.nav.pauseMusic : t.nav.playMusic}
               >
                 {isPlaying ? <Volume2 size={20} /> : <VolumeX size={20} />}
               </motion.button>
@@ -134,10 +138,10 @@ const Navbar: React.FC = () => {
             <motion.button
               type="button"
               onClick={() => setIsOpen((open) => !open)}
-              className={`lg:hidden ${iconButton}`}
+              className={`xl:hidden ${iconButton}`}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
-              aria-label={isOpen ? 'Close menu' : 'Open menu'}
+              aria-label={isOpen ? t.nav.closeMenu : t.nav.openMenu}
               aria-expanded={isOpen}
               aria-controls="mobile-menu"
             >
@@ -152,7 +156,7 @@ const Navbar: React.FC = () => {
         {isOpen && (
           <motion.div
             id="mobile-menu"
-            className="lg:hidden border-t border-gray-200/60 dark:border-white/10"
+            className="xl:hidden border-t border-gray-200/60 dark:border-white/10 max-h-[calc(100vh-4rem)] overflow-y-auto"
             // Animate transform/opacity only: animating `height: 'auto'` makes Framer Motion
             // restore the scroll position, which cancels the smooth scroll to the tapped section.
             initial={{ opacity: 0, y: -12 }}
@@ -161,21 +165,27 @@ const Navbar: React.FC = () => {
             transition={{ duration: 0.2 }}
           >
             <div className="px-4 pt-2 pb-4 space-y-1">
-              {navItems.map((item) => (
+              {navItems.map((id) => (
                 <button
-                  key={item.id}
+                  key={id}
                   type="button"
-                  onClick={() => go(item.id)}
-                  aria-current={active === item.id ? 'true' : undefined}
-                  className={`block w-full text-left px-3 py-2.5 rounded-md text-base font-medium transition-colors duration-200 ${
-                    active === item.id
+                  onClick={() => go(id)}
+                  aria-current={active === id ? 'true' : undefined}
+                  className={`block w-full text-start px-3 py-2.5 rounded-md text-base font-medium transition-colors duration-200 ${
+                    active === id
                       ? 'text-neon-blue bg-neon-blue/10'
                       : 'text-gray-700 dark:text-gray-300 hover:text-neon-blue hover:bg-gray-100 dark:hover:bg-white/5'
                   }`}
                 >
-                  {item.name}
+                  {t.nav.items[id]}
                 </button>
               ))}
+              <div className="pt-3 mt-2 border-t border-gray-200/60 dark:border-white/10">
+                <p className="px-1 pb-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                  {t.nav.language}
+                </p>
+                <LanguageSwitcher variant="inline" onSelect={() => setIsOpen(false)} />
+              </div>
             </div>
           </motion.div>
         )}

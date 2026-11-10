@@ -3,6 +3,8 @@ import { profile, socialLinks } from '../data/profile';
 import { useTheme } from '../contexts/theme';
 import { useMusic } from '../contexts/music';
 import { scrollToSection } from '../lib/utils';
+import { useI18n } from '../contexts/language';
+import { LANGUAGES, isLang } from '../i18n';
 
 const KONAMI = [
   'ArrowUp',
@@ -27,6 +29,7 @@ const HELP = [
   '  socials   Where to find me',
   '  game      Play "guess the number"',
   '  theme     Toggle light / dark mode',
+  '  lang <code>  Switch language (en, id, ja, ar)',
   '  music     Play / pause the background music',
   '  goto <section>  Jump to a section (about, skills, projects, blog, contact...)',
   '  konami    A little gaming history',
@@ -42,6 +45,7 @@ export const useEasterEgg = () => {
   const attemptsRef = useRef(0);
   const { toggleTheme, isDark } = useTheme();
   const { toggleMusic, isPlaying } = useMusic();
+  const { t, lang, setLang } = useI18n();
 
   const print = useCallback((...lines: string[]) => setCommands((prev) => [...prev, ...lines]), []);
 
@@ -122,7 +126,7 @@ export const useEasterEgg = () => {
           print('> This portfolio was built with React, TypeScript, Tailwind CSS, Framer Motion and lots of ☕');
           break;
         case 'whoami':
-          print(`> ${profile.name} (${profile.brand})`, `> ${profile.roles.join(' · ')} — ${profile.location}`);
+          print(`> ${profile.name} (${profile.brand})`, `> ${t.hero.roles.join(' · ')} — ${t.about.location}`);
           break;
         case 'socials':
           print(...socialLinks.map((s) => `  ${s.label.padEnd(10)} ${s.href.replace(/^mailto:/, '')}`));
@@ -133,6 +137,20 @@ export const useEasterEgg = () => {
           attemptsRef.current = 0;
           print("> 🎮 I'm thinking of a number between 1 and 100.", '> Type your guess and press Enter!');
           break;
+        case 'lang':
+        case 'language': {
+          const code = args[0];
+          if (isLang(code)) {
+            setLang(code);
+            print(`> 🌐 Language: ${LANGUAGES.find((l) => l.code === code)!.label}`);
+          } else {
+            print(
+              `> Current: ${lang}. Usage: lang <${LANGUAGES.map((l) => l.code).join('|')}>`,
+              ...LANGUAGES.map((l) => `  ${l.code}  ${l.label}`),
+            );
+          }
+          break;
+        }
         case 'theme':
           toggleTheme();
           print(`> Switched to ${isDark ? 'light' : 'dark'} mode.`);
@@ -171,7 +189,7 @@ export const useEasterEgg = () => {
           print(`> Command not found: ${raw}`, '> Type "help" for available commands');
       }
     },
-    [print, toggleTheme, isDark, toggleMusic, isPlaying, closeConsole],
+    [print, toggleTheme, isDark, toggleMusic, isPlaying, closeConsole, t, lang, setLang],
   );
 
   return { showConsole, commands, executeCommand, closeConsole, openConsole };

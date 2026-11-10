@@ -78,3 +78,36 @@ html.party-mode footer {
 ::selection {
   background-color: rgba(0, 209, 255, 0.3);
 }
+
+/* Japanese and Arabic have no true italics, and letter-spacing breaks Arabic joining. */
+html[lang='ja'] .italic,
+html[lang='ar'] .italic {
+  font-style: normal;
+}
+
+html[lang='ar'] [class*='tracking-'] {
+  letter-spacing: 0;
+}
+
+/* Arabic script needs a little more line height to stay readable. */
+html[lang='ar'] body {
+  line-height: 1.7;
+}
+
+/* Language-appropriate quotation marks for <q> elements. */
+q {
+  quotes: '“' '”';
+}
+
+html[lang='ja'] q {
+  quotes: '「' '」';
+}
+
+html[lang='ar'] q {
+  quotes: '«' '»';
+}
+
+/* Break Japanese lines between phrases instead of leaving a lonely character. */
+html[lang='ja'] body {
+  word-break: auto-phrase;
+}

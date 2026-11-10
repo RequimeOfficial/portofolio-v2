@@ -1,7 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Heart, ArrowUp, Code, Coffee, Terminal } from 'lucide-react';
-import { navItems, profile, services, socialLinks } from '../data/profile';
+import { navItems, profile, socialLinks } from '../data/profile';
+import { useI18n } from '../contexts/language';
 import { scrollToSection, scrollToTop } from '../lib/utils';
 
 interface FooterProps {
@@ -10,6 +11,12 @@ interface FooterProps {
 
 const Footer: React.FC<FooterProps> = ({ onOpenConsole }) => {
   const currentYear = new Date().getFullYear();
+  const { t } = useI18n();
+  const stats = [
+    { icon: Code, number: '50+' },
+    { icon: Coffee, number: '1000+' },
+    { icon: Heart, number: '100%' },
+  ];
 
   return (
     <footer className="bg-dark-primary text-white relative overflow-hidden border-t border-white/5">
@@ -34,31 +41,28 @@ const Footer: React.FC<FooterProps> = ({ onOpenConsole }) => {
               viewport={{ once: true }}
             >
               <div className="mb-6">
-                <h3 className="text-2xl md:text-3xl font-poppins font-bold mb-4">
+                <h3 className="text-2xl md:text-3xl font-poppins font-bold mb-4" dir="ltr">
                   <span className="text-neon-blue">A</span>hmad Mofidur <span className="text-neon-purple">R</span>
                   obbiyal Aqla
                 </h3>
-                <p className="text-gray-300 text-lg leading-relaxed max-w-md">
-                  Full Stack Developer passionate about creating innovative solutions through clean code, creative
-                  design, and cutting-edge technology.
-                </p>
+                <p className="text-gray-300 text-lg leading-relaxed max-w-md">{t.footer.bio}</p>
               </div>
 
-              <blockquote className="border-l-4 border-neon-blue pl-6 mb-6">
-                <p className="text-gray-300 italic">"Code is like humor. When you have to explain it, it's bad."</p>
+              <blockquote className="border-s-4 border-neon-blue ps-6 mb-6">
+                <p className="text-gray-300 italic">
+                  <q>{t.footer.quote}</q>
+                </p>
                 <cite className="block not-italic text-neon-blue mt-2">— Cory House</cite>
               </blockquote>
 
               <div className="flex gap-8 mb-6">
-                {[
-                  { icon: Code, number: '50+', label: 'Projects' },
-                  { icon: Coffee, number: '1000+', label: 'Cups of Coffee' },
-                  { icon: Heart, number: '100%', label: 'Passion' },
-                ].map((stat) => (
-                  <div key={stat.label} className="text-center">
+                {stats.map((stat, i) => (
+                  <div key={stat.number} className="text-center">
                     <stat.icon className="text-neon-blue mx-auto mb-1" size={20} aria-hidden="true" />
-                    <div className="text-lg font-bold text-white">{stat.number}</div>
-                    <div className="text-xs text-gray-400">{stat.label}</div>
+                    <div className="text-lg font-bold text-white" dir="ltr">
+                      {stat.number}
+                    </div>
+                    <div className="text-xs text-gray-400">{t.footer.stats[i]}</div>
                   </div>
                 ))}
               </div>
@@ -87,16 +91,16 @@ const Footer: React.FC<FooterProps> = ({ onOpenConsole }) => {
               transition={{ duration: 0.8, delay: 0.1 }}
               viewport={{ once: true }}
             >
-              <h4 className="text-xl font-semibold text-white mb-6">Quick Links</h4>
-              <nav aria-label="Footer" className="grid grid-cols-2 sm:grid-cols-1 gap-3">
-                {navItems.map((link) => (
+              <h4 className="text-xl font-semibold text-white mb-6">{t.footer.quickLinks}</h4>
+              <nav aria-label={t.footer.quickLinks} className="grid grid-cols-2 sm:grid-cols-1 gap-3">
+                {navItems.map((id) => (
                   <button
-                    key={link.id}
+                    key={id}
                     type="button"
-                    onClick={() => scrollToSection(link.id)}
-                    className="text-left text-gray-300 hover:text-neon-blue hover:translate-x-1 transition-all duration-200"
+                    onClick={() => scrollToSection(id)}
+                    className="text-start text-gray-300 hover:text-neon-blue hover:translate-x-1 rtl:hover:-translate-x-1 transition-all duration-200"
                   >
-                    {link.name}
+                    {t.nav.items[id]}
                   </button>
                 ))}
               </nav>
@@ -109,15 +113,15 @@ const Footer: React.FC<FooterProps> = ({ onOpenConsole }) => {
               transition={{ duration: 0.8, delay: 0.2 }}
               viewport={{ once: true }}
             >
-              <h4 className="text-xl font-semibold text-white mb-6">Services</h4>
+              <h4 className="text-xl font-semibold text-white mb-6">{t.footer.services}</h4>
               <ul className="space-y-3">
-                {services.map((service) => (
+                {t.footer.serviceList.map((service) => (
                   <li key={service}>
                     <button
                       type="button"
                       onClick={() => scrollToSection('contact')}
-                      className="text-left text-gray-300 hover:text-neon-purple transition-colors duration-200"
-                      title="Get in touch about this service"
+                      className="text-start text-gray-300 hover:text-neon-purple transition-colors duration-200"
+                      title={t.footer.serviceTitle}
                     >
                       {service}
                     </button>
@@ -133,13 +137,13 @@ const Footer: React.FC<FooterProps> = ({ onOpenConsole }) => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-sm text-gray-400 text-center">
               <span>
-                © {currentYear} {profile.name}. Made with
+                © {currentYear} <span dir="ltr">{profile.name}</span>. {t.footer.madeWith}
               </span>
-              <Heart className="text-red-500 animate-pulse" size={16} fill="currentColor" aria-label="love" />
-              <span>in {profile.location}</span>
+              <Heart className="text-red-500 animate-pulse" size={16} fill="currentColor" aria-label={t.footer.love} />
+              <span>{t.footer.in(t.about.location)}</span>
             </p>
 
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center justify-center gap-3">
               <button
                 type="button"
                 onClick={onOpenConsole}
@@ -147,7 +151,7 @@ const Footer: React.FC<FooterProps> = ({ onOpenConsole }) => {
                 title="Shortcut: Ctrl + Alt + A"
               >
                 <Terminal size={14} />
-                Secret console (Ctrl+Alt+A) 🎮
+                {t.footer.console}
               </button>
               <motion.button
                 type="button"
@@ -157,7 +161,7 @@ const Footer: React.FC<FooterProps> = ({ onOpenConsole }) => {
                 whileTap={{ scale: 0.95 }}
               >
                 <ArrowUp size={16} />
-                <span>Back to Top</span>
+                <span>{t.footer.backToTop}</span>
               </motion.button>
             </div>
           </div>

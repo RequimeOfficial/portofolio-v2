@@ -29,15 +29,18 @@ export interface Skill {
   icon: LucideIcon;
 }
 
+export type TechCategoryKey = 'frontend' | 'backend' | 'game' | 'ai' | 'design' | 'mobile';
+
+/** The category title comes from `t.skills.categories[key]`. */
 export interface TechCategory {
-  title: string;
+  key: TechCategoryKey;
   color: string;
   skills: Skill[];
 }
 
 export const techCategories: TechCategory[] = [
   {
-    title: 'Frontend',
+    key: 'frontend',
     color: 'from-blue-500 to-cyan-500',
     skills: [
       { name: 'React', level: 95, icon: Layers },
@@ -47,7 +50,7 @@ export const techCategories: TechCategory[] = [
     ],
   },
   {
-    title: 'Backend',
+    key: 'backend',
     color: 'from-green-500 to-emerald-500',
     skills: [
       { name: 'Node.js', level: 93, icon: Cpu },
@@ -57,7 +60,7 @@ export const techCategories: TechCategory[] = [
     ],
   },
   {
-    title: 'Game Development',
+    key: 'game',
     color: 'from-purple-500 to-pink-500',
     skills: [
       { name: 'Unity', level: 87, icon: Gamepad2 },
@@ -67,7 +70,7 @@ export const techCategories: TechCategory[] = [
     ],
   },
   {
-    title: 'AI & Machine Learning',
+    key: 'ai',
     color: 'from-orange-500 to-red-500',
     skills: [
       { name: 'TensorFlow', level: 80, icon: Brain },
@@ -77,7 +80,7 @@ export const techCategories: TechCategory[] = [
     ],
   },
   {
-    title: 'Design & Tools',
+    key: 'design',
     color: 'from-indigo-500 to-purple-500',
     skills: [
       { name: 'Figma', level: 90, icon: Figma },
@@ -87,7 +90,7 @@ export const techCategories: TechCategory[] = [
     ],
   },
   {
-    title: 'Mobile Development',
+    key: 'mobile',
     color: 'from-teal-500 to-blue-500',
     skills: [
       { name: 'React Native', level: 85, icon: Smartphone },
@@ -98,36 +101,30 @@ export const techCategories: TechCategory[] = [
   },
 ];
 
+/** Labels come from `t.skills.stats` (same order). */
 export const skillStats = [
-  { number: '50+', label: 'Projects Completed', icon: '🚀' },
-  { number: '25+', label: 'Technologies Mastered', icon: '💻' },
-  { number: '3+', label: 'Years Experience', icon: '⭐' },
-  { number: '100%', label: 'Client Satisfaction', icon: '❤️' },
+  { number: '50+', icon: '🚀' },
+  { number: '25+', icon: '💻' },
+  { number: '3+', icon: '⭐' },
+  { number: '100%', icon: '❤️' },
 ];
 
+/** Titles and descriptions come from `t.about.timeline[year]`. */
 export const timeline = [
   {
-    year: '2020',
-    title: 'Started Programming Journey',
-    description: 'Began learning web development with HTML, CSS, and JavaScript',
+    year: '2020' as const,
     icon: Code,
   },
   {
-    year: '2021',
-    title: 'Full Stack Development',
-    description: 'Mastered React, Node.js, and database technologies',
+    year: '2021' as const,
     icon: Server,
   },
   {
-    year: '2022',
-    title: 'Game Development',
-    description: 'Explored Unity and C# for creating interactive experiences',
+    year: '2022' as const,
     icon: Gamepad2,
   },
   {
-    year: '2023',
-    title: 'AI Integration',
-    description: 'Specialized in AI/ML and prompt engineering',
+    year: '2023' as const,
     icon: Brain,
   },
 ];

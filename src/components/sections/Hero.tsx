@@ -4,10 +4,12 @@ import { ChevronDown, Download } from 'lucide-react';
 import FloatingTechIcons from '../FloatingTechIcons';
 import { profile, socialLinks } from '../../data/profile';
 import { prefersReducedMotion, scrollToSection } from '../../lib/utils';
+import { useI18n } from '../../contexts/language';
 
 const roleColors = ['text-neon-blue', 'text-neon-purple', 'text-neon-green'];
 
 const Hero: React.FC = () => {
+  const { t } = useI18n();
   const fullText = profile.name;
   const [text, setText] = useState(() => (prefersReducedMotion() ? fullText : ''));
   const done = text.length === fullText.length;
@@ -36,10 +38,23 @@ const Hero: React.FC = () => {
       <FloatingTechIcons />
 
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 py-16">
+        <motion.p
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="inline-flex items-center gap-2 mb-5 px-4 py-1.5 rounded-full border border-neon-blue/40 bg-neon-blue/10 text-sm sm:text-base font-medium text-neon-blue"
+        >
+          <span className="relative flex w-2 h-2">
+            <span className="absolute inline-flex w-full h-full rounded-full bg-neon-green opacity-75 animate-ping" />
+            <span className="relative inline-flex w-2 h-2 rounded-full bg-neon-green" />
+          </span>
+          👋 {t.hero.hello}
+        </motion.p>
+
         <h1 className="text-4xl sm:text-6xl lg:text-7xl font-poppins font-bold text-gray-900 dark:text-white mb-6 leading-tight">
           <span className="sr-only">{fullText}</span>
           {/* Invisible copy reserves the final size so nothing jumps while typing. */}
-          <span aria-hidden="true" className="relative inline-block">
+          <span aria-hidden="true" className="relative inline-block" dir="ltr">
             <span className="invisible">{fullText}</span>
             <span className="absolute inset-0">
               {text}
@@ -54,7 +69,7 @@ const Hero: React.FC = () => {
         {/* Content is always rendered (only faded) so the layout doesn't shift when typing ends. */}
         <motion.div {...reveal(0)} className="space-y-4 mb-10">
           <p className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xl sm:text-2xl md:text-3xl font-inter">
-            {profile.roles.map((role, i) => (
+            {t.hero.roles.map((role, i) => (
               <React.Fragment key={role}>
                 {i > 0 && (
                   <span className="hidden sm:inline text-gray-400" aria-hidden="true">
@@ -65,7 +80,9 @@ const Hero: React.FC = () => {
               </React.Fragment>
             ))}
           </p>
-          <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">"{profile.tagline}"</p>
+          <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+            <q>{t.hero.tagline}</q>
+          </p>
         </motion.div>
 
         <motion.div {...reveal(0.2)} className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
@@ -76,7 +93,7 @@ const Hero: React.FC = () => {
             whileTap={{ scale: 0.95 }}
             onClick={() => scrollToSection('projects')}
           >
-            Explore My Work
+            {t.hero.explore}
           </motion.button>
 
           <motion.a
@@ -86,8 +103,8 @@ const Hero: React.FC = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <Download className="mr-2" size={20} />
-            Download CV
+            <Download className="me-2" size={20} />
+            {t.hero.downloadCv}
           </motion.a>
         </motion.div>
 
@@ -122,7 +139,7 @@ const Hero: React.FC = () => {
           className="text-gray-400 hover:text-neon-blue transition-colors duration-300"
           animate={{ y: [0, 10, 0] }}
           transition={{ duration: 2, repeat: Infinity }}
-          aria-label="Scroll to About section"
+          aria-label={t.hero.scrollDown}
         >
           <ChevronDown size={32} />
         </motion.button>

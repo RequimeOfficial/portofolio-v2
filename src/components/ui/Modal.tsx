@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X } from 'lucide-react';
+import { useI18n } from '../../contexts/language';
 
 interface ModalProps {
   isOpen: boolean;
@@ -13,6 +14,7 @@ interface ModalProps {
 /** Accessible modal: closes on Escape / backdrop click, locks page scroll and restores focus. */
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose, labelledBy, children, className = '' }) => {
   const dialogRef = useRef<HTMLDivElement>(null);
+  const { t } = useI18n();
   const onCloseRef = useRef(onClose);
 
   useEffect(() => {
@@ -63,8 +65,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, labelledBy, children, cl
             <button
               type="button"
               onClick={onClose}
-              aria-label="Close"
-              className="absolute top-3 right-3 z-10 p-2 rounded-full bg-black/40 text-white hover:bg-neon-blue transition-colors"
+              aria-label={t.common.close}
+              className="absolute top-3 end-3 z-10 p-2 rounded-full bg-black/40 text-white hover:bg-neon-blue transition-colors"
             >
               <X size={18} />
             </button>
